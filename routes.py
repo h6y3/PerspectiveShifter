@@ -198,7 +198,7 @@ def share_text(quote_id):
 {quote_data.get('context', '')}
 
 Shared from The Perspective Shift
-theperspectiveshift.com
+theperspectiveshift.vercel.app
 '''
         
         return Response(

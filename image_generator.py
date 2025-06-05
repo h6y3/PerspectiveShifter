@@ -163,7 +163,7 @@ def create_share_image_buffer(quote_text, attribution, perspective_text, design=
         
         # Website URL - elegant positioning
         website_font = get_font_or_default(18)
-        website_text = "theperspectiveshift.com"
+        website_text = "theperspectiveshift.vercel.app"
         website_y = author_y + 50
         draw.text((padding, website_y), website_text, font=website_font, fill=orange)
         
@@ -238,7 +238,7 @@ def create_share_image_buffer(quote_text, attribution, perspective_text, design=
     
     # Add footer
     footer_y = height - padding - 30
-    footer_text = "theperspectiveshift.com"
+    footer_text = "theperspectiveshift.vercel.app"
     footer_width, _ = get_text_size(draw, footer_text, brand_font)
     footer_x = (width - footer_width) // 2
     draw.text((footer_x, footer_y), footer_text, fill=accent_color, font=brand_font)
