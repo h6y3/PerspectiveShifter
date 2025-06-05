@@ -1,0 +1,57 @@
+# Development files
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+server.log
+server.pid
+
+# Local database
+instance/
+*.db
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Package lock files (Vercel will handle dependencies)
+uv.lock
+
+# Test files
+test_*
+
+# Local scripts
+start_server.sh
+stop_server.sh
+
+# Assets that don't need deployment
+attached_assets/
+space-mono.zip
+
+# Large generated files
+generated-icon.png 

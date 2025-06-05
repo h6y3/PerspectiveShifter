@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}The Perspective Shift - Timeless wisdom for this moment{% endblock %}</title>
+
+    <!-- Meta tags for social sharing -->
+    <meta property="og:title" content="The Perspective Shift">
+    <meta property="og:description"
+        content="Timeless wisdom for this moment - Match your feelings with curated historical quotes">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Perspective Shift">
+    <meta name="twitter:description" content="Timeless wisdom for this moment">
+
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="site-header">
+            <div class="header-content">
+                <div class="logo-container">
+                    <h1 class="brand-title">The Perspective Shift</h1>
+                </div>
+                <p class="tagline">Timeless wisdom for this moment</p>
+            </div>
+        </header>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
+                {{ message }}
+                <button type="button" class="alert-close">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Main content -->
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+            <div class="footer-stats">
+                <span class="stat-item">
+                    <i class="stat-icon">📅</i>
+                    {{ daily_shifts or 0 }} perspective shifts today
+                </span>
+                <span class="stat-item">
+                    <i class="stat-icon">🔒</i>
+                    Your privacy protected
+                </span>
+            </div>
+            <p class="footer-text">Timeless wisdom, safe & secure • <a href="{{ url_for('privacy') }}" style="color: inherit; text-decoration: underline;">Privacy details</a></p>
+        </footer>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>

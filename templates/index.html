@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content-wrapper">
+    {% if not show_results %}
+    <!-- Input Form -->
+    <div class="input-section">
+        <form method="POST" action="{{ url_for('shift_perspective') }}" class="perspective-form">
+            <div class="form-group">
+                <label for="userInput" class="form-label">How are you feeling right now?</label>
+                <textarea class="form-input" id="userInput" name="user_input" rows="4"
+                    placeholder="Share your thoughts openly..." required></textarea>
+                <div class="form-error">Please share what's on your mind.</div>
+                <p class="privacy-note">
+                    We keep your thoughts safe and private (no names or personal info collected). We save your message so you get faster responses and can share your favorite wisdom quotes. <a href="{{ url_for('privacy') }}" style="color: inherit; text-decoration: underline;">Privacy details</a>
+                </p>
+                <input type="hidden" name="current_prompt" value="{{ prompt }}">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="submit-button" id="submitBtn">
+                    Shift My Perspective
+                </button>
+                <div class="loading-state" id="loadingState" style="display: none;">
+                    <div class="loading-text" id="loadingText">Reviewing the wisdom of the ages...</div>
+                </div>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    {% if show_results and quotes %}
+    <!-- Results Display -->
+    <div class="results-section" id="resultsSection">
+        <div class="user-input-section">
+            <h2 class="section-title">Your Moment</h2>
+            <div class="user-input-card">
+                <p class="user-input-text">"{{ user_input }}"</p>
+            </div>
+        </div>
+
+        <h2 class="section-title">Your Perspective Shifts</h2>
+
+        <!-- Copy All Button -->
+        <div class="copy-all-section">
+            <button class="copy-all-button" title="Copy all quotes as markdown">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
+                    <path
+                        d="M3 5a2 2 0 012-2 3 3 0 003 3h6a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L14.586 13H19v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
+                </svg>
+                Copy All as Markdown
+            </button>
+        </div>
+
+        {% for quote in quotes %}
+        <div class="quote-card">
+            <div class="quote-content">
+                <blockquote class="quote-text">
+                    "{{ quote.quote }}"
+                </blockquote>
+                <cite class="quote-attribution">— {{ quote.attribution }}</cite>
+            </div>
+
+            <div class="quote-details">
+                <div class="detail-section">
+                    <h3 class="detail-title">Perspective</h3>
+                    <p class="detail-text">{{ quote.perspective }}</p>
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="detail-title">Context</h3>
+                    <p class="detail-text">{{ quote.context }}</p>
+                </div>
+            </div>
+
+            <!-- Share Button -->
+            <div class="quote-actions">
+                <!-- Copy Options Dropdown -->
+                <div class="copy-options">
+                    <button class="copy-options-button" title="Copy quote in different formats">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                            <path
+                                d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                        </svg>
+                        Copy
+                        <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div class="copy-options-dropdown">
+                        <button class="copy-option-item" data-format="markdown" data-quote="{{ quote.quote }}"
+                            data-attribution="{{ quote.attribution }}" data-perspective="{{ quote.perspective }}"
+                            data-context="{{ quote.context }}">
+                            📋 Markdown
+                        </button>
+                        <button class="copy-option-item" data-format="plain" data-quote="{{ quote.quote }}"
+                            data-attribution="{{ quote.attribution }}" data-perspective="{{ quote.perspective }}"
+                            data-context="{{ quote.context }}">
+                            📄 Plain Text
+                        </button>
+                        <button class="copy-option-item" data-format="quote-only" data-quote="{{ quote.quote }}"
+                            data-attribution="{{ quote.attribution }}">
+                            💬 Quote Only
+                        </button>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('share_quote', quote_id=quote.id) }}?design=3" class="share-button" target="_blank"
+                    title="Share this quote as beautiful image">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path
+                            d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+                    </svg>
+                    Share Quote
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="action-section">
+            <a href="{{ url_for('new_perspective') }}" class="action-button">
+                <span style="vertical-align: middle; display: inline-block; margin-right: 0.5em;">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20" style="vertical-align: middle;">
+                        <path
+                            d="M4.293 15.707a1 1 0 010-1.414L13.586 5H7a1 1 0 110-2h8a1 1 0 011 1v8a1 1 0 11-2 0V6.414l-9.293 9.293a1 1 0 01-1.414 0z" />
+                    </svg>
+                </span>
+                New Perspective
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

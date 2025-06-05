@@ -1,0 +1,128 @@
+# PerspectiveShifter Cursor Rules - PYTHON ONLY
+
+## Architecture Guidelines
+
+### CRITICAL: 100% Python Flask Application
+- **NO Node.js, NO Edge Runtime, NO Mixed Technologies**
+- **PIL/Pillow for image generation ONLY**
+- **Single technology stack for maintainability**
+- **Flask serves all routes including image generation**
+
+## Git Commit Guidelines
+
+### CRITICAL: Single-Line Commit Messages Only
+- **NEVER use newlines in commit messages** - this breaks terminal git commands
+- Keep commit messages on a single line, use hyphens or semicolons to separate multiple points
+- Maximum length: 100 characters for the main message
+- Use conventional commit format: `type: description - additional details`
+
+### Commit Message Format
+```
+✨ feat: description - additional context if needed
+🐛 fix: description - what was broken and how it's fixed  
+📚 docs: description - what documentation was added/updated
+🔧 config: description - configuration or setup changes
+🚀 deploy: description - deployment related changes
+♻️ refactor: description - code restructuring without functional changes
+```
+
+## Image Generation Rules
+
+### Python-Only Image Generation
+- Use `image_generator.py` `create_share_image_route()` ONLY
+- NO redirects to external endpoints or API routes
+- Direct Flask Response with proper headers and caching
+- Robust font fallback strategies (TTF → system fonts → PIL default)
+- Handle PIL version compatibility (textbbox vs textsize)
+
+### Image Generation Best Practices
+- Return Flask Response with proper MIME type and headers
+- Include fallback PNG for any generation failures
+- Use social media optimized dimensions (1200x630)
+- Clean, professional layout with brand consistency
+- Proper error handling without exposing internals
+
+## Code Quality Rules
+
+### Production Code Standards
+- NO debug routes in production (`/test_image`, `/debug_fonts`)
+- Clean logging without debug prefixes (`🔍 DEBUG`)
+- Proper error handling without excessive tracebacks
+- Remove all test files and development artifacts
+- Use meaningful variable names and clear function documentation
+
+### Logging Guidelines
+- Use `logging.info()`, `logging.error()`, `logging.warning()`
+- NO emoji prefixes or debug markers in production
+- Log errors concisely without full tracebacks unless critical
+- Include relevant context (user input, quote IDs, etc.)
+
+## Deployment Rules
+
+### Vercel Configuration
+- `vercel.json`: Python runtime ONLY (`@vercel/python`)
+- NO package.json, NO Node.js dependencies
+- Static files served directly by Vercel
+- Environment variables for configuration (OPENAI_API_KEY, DATABASE_URL)
+
+### File Organization Rules
+- **Core Files**: `routes.py`, `models.py`, `image_generator.py`, `openai_service.py`
+- **Config Files**: `vercel.json`, `requirements.txt`, `.gitignore`
+- **Static Assets**: `/static/` for CSS, JS, fonts, images
+- **Templates**: `/templates/` for HTML templates
+- **FORBIDDEN**: `attached_assets/`, test files, `node_modules/`, `package.json`
+
+## Flask Application Guidelines
+
+### Route Organization
+- Keep routes in `routes.py`, models in `models.py`
+- Use environment variables for configuration
+- Ensure stateless design (no session state)
+- Add proper error handling for API calls
+- Cache responses when appropriate
+
+### Database Guidelines
+- Use SQLAlchemy ORM for database operations
+- Handle database connection errors gracefully
+- Support both SQLite (dev) and PostgreSQL (production)
+- Add proper indexing for performance
+- Anonymous usage tracking only (no personal data)
+
+## AI Service Integration
+
+### OpenAI API Best Practices
+- Handle OpenAI API errors gracefully with fallbacks
+- Implement proper rate limiting and retries
+- Cache responses to avoid unnecessary API calls
+- Log API usage for monitoring costs
+- Validate API responses before processing
+
+## Security Guidelines
+
+### Data Protection
+- Never commit API keys or sensitive data
+- Use environment variables for configuration
+- Implement proper input validation
+- Use HTTPS in production
+- Keep dependencies updated for security patches
+- Maintain user anonymity (no tracking, no personal data storage)
+
+## Forbidden Patterns
+
+### NEVER Use These
+- Edge Runtime functions (`api/og.jsx`)
+- Node.js dependencies or `package.json`
+- Mixed technology stacks
+- Debug routes in production
+- Excessive debug logging
+- Test files in production deployments
+- Personal data collection or tracking
+
+## Performance Guidelines
+
+### Optimization Rules
+- Optimize for cold start performance on Vercel
+- Use proper caching headers for static assets
+- Keep function execution under 30 seconds
+- Minimize dependencies and imports
+- Use efficient database queries with proper indexing 

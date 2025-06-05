@@ -1,0 +1,30 @@
+<svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Logo for The Perspective Shift - overlapping circles suggesting transformation -->
+  
+  <!-- Background circle -->
+  <circle cx="20" cy="25" r="15" fill="none" stroke="currentColor" stroke-width="2" opacity="0.6"/>
+  
+  <!-- Overlapping circle suggesting shift -->
+  <circle cx="30" cy="25" r="15" fill="none" stroke="currentColor" stroke-width="2" opacity="0.8"/>
+  
+  <!-- Center intersection highlight -->
+  <circle cx="25" cy="25" r="4" fill="currentColor" opacity="0.9"/>
+  
+  <!-- Subtle light rays suggesting illumination -->
+  <g opacity="0.5">
+    <line x1="25" y1="10" x2="25" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="25" y1="44" x2="25" y2="40" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="39" y1="25" x2="43" y2="25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="7" y1="25" x2="11" y2="25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    
+    <!-- Diagonal rays -->
+    <line x1="35.36" y1="14.64" x2="38.18" y2="11.82" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <line x1="14.64" y1="35.36" x2="11.82" y2="38.18" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <line x1="35.36" y1="35.36" x2="38.18" y2="38.18" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <line x1="14.64" y1="14.64" x2="11.82" y2="11.82" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Subtle arc suggesting movement/transformation -->
+  <path d="M 15 15 Q 25 20 35 15" fill="none" stroke="currentColor" stroke-width="1" opacity="0.4"/>
+  <path d="M 15 35 Q 25 30 35 35" fill="none" stroke="currentColor" stroke-width="1" opacity="0.4"/>
+</svg>

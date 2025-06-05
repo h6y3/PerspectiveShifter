@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy & Data - The Perspective Shift{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="privacy-page">
+        <header class="page-header">
+            <h1 class="page-title">Your Privacy Matters</h1>
+            <p class="page-subtitle">We're completely transparent about how we keep your thoughts safe</p>
+        </header>
+
+        <div class="privacy-content">
+            <section class="privacy-section">
+                <h2 class="section-heading">What We Keep Safe For You</h2>
+                <div class="data-list">
+                    <div class="data-item">
+                        <div class="data-icon">💬</div>
+                        <div class="data-details">
+                            <h3>Your Messages</h3>
+                            <p>We save the thoughts and feelings you share with us so that if you (or someone else) asks the same question, we can give you the wisdom instantly instead of making you wait.</p>
+                            <span class="data-purpose">Why this helps: Faster responses, better experience</span>
+                        </div>
+                    </div>
+
+                    <div class="data-item">
+                        <div class="data-icon">🔐</div>
+                        <div class="data-details">
+                            <h3>Secret Code Version</h3>
+                            <p>We also create a special secret code from your message (like a super-secure fingerprint) that helps us find it quickly without anyone being able to read the original message from the code.</p>
+                            <span class="data-purpose">Why this helps: Lightning-fast searches while keeping your words private</span>
+                        </div>
+                    </div>
+
+                    <div class="data-item">
+                        <div class="data-icon">✨</div>
+                        <div class="data-details">
+                            <h3>The Wisdom We Find For You</h3>
+                            <p>We keep the quotes, wise words, and insights we discover for your situation so you can share them with friends or come back to them later.</p>
+                            <span class="data-purpose">Why this helps: Share inspiring quotes, revisit helpful wisdom</span>
+                        </div>
+                    </div>
+
+                    <div class="data-item">
+                        <div class="data-icon">📅</div>
+                        <div class="data-details">
+                            <h3>When You Visited</h3>
+                            <p>We remember when you got your wisdom so we can keep our system running smoothly and know when to clean up old information.</p>
+                            <span class="data-purpose">Why this helps: Keeps the site fast and reliable</span>
+                        </div>
+                    </div>
+
+                    <div class="data-item">
+                        <div class="data-icon">📊</div>
+                        <div class="data-details">
+                            <h3>How Many People We Help Each Day</h3>
+                            <p>We count how many people get perspective shifts each day (but not who they are) so we know if our site is helping people and if we need to make it stronger.</p>
+                            <span class="data-purpose">Why this helps: Better service, faster site, more wisdom</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="privacy-section">
+                <h2 class="section-heading">What We Never Collect</h2>
+                <div class="no-data-list">
+                    <div class="no-data-item">🚫 Your name, email, or any way to know who you are</div>
+                    <div class="no-data-item">🚫 Where you live or your location</div>
+                    <div class="no-data-item">🚫 Your phone type, computer, or device info</div>
+                    <div class="no-data-item">🚫 Your browsing history or other websites you visit</div>
+                    <div class="no-data-item">🚫 Photos, videos, or files from your device</div>
+                    <div class="no-data-item">🚫 Connection to your social media accounts</div>
+                </div>
+            </section>
+
+            <section class="privacy-section">
+                <h2 class="section-heading">How We Keep Everything Secure</h2>
+                <div class="security-info">
+                    <div class="security-item">
+                        <h3>🛡️ Military-Grade Protection</h3>
+                        <p>Your information is protected with the same type of encryption that banks and governments use. Even if someone tried to steal it, they'd need thousands of years to crack the code.</p>
+                    </div>
+                    <div class="security-item">
+                        <h3>🔒 Secure Connection</h3>
+                        <p>Every message between you and our site is encrypted (look for the lock icon in your browser), so no one can read what you're sharing while it travels to us.</p>
+                    </div>
+                    <div class="security-item">
+                        <h3>👤 Completely Anonymous</h3>
+                        <p>Since we never collect your name or any identifying information, there's no way for anyone (including us) to connect your thoughts to you personally.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="privacy-section">
+                <h2 class="section-heading">Why We Do This</h2>
+                <div class="why-list">
+                    <div class="why-item">
+                        <h3>⚡ Make It Lightning Fast</h3>
+                        <p>By remembering wisdom we've already found, we can give you instant help instead of making you wait while we search through thousands of quotes again.</p>
+                    </div>
+                    <div class="why-item">
+                        <h3>💝 Let You Share Inspiration</h3>
+                        <p>When you find a quote that really speaks to you, we make it easy to create beautiful images to share with friends and family who might need the same wisdom.</p>
+                    </div>
+                    <div class="why-item">
+                        <h3>🌟 Keep Improving</h3>
+                        <p>By understanding how many people we help each day, we can make the site faster, find better wisdom, and help more people when they need it most.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="privacy-section">
+                <h2 class="section-heading">Your Trust Matters</h2>
+                <div class="trust-info">
+                    <p>We know sharing your feelings takes courage. That's why we've built everything to protect your privacy first. You can explore our code on <a href="https://github.com/h6y3/PerspectiveShifter" target="_blank" rel="noopener">GitHub</a> to see exactly how we handle your information - we have nothing to hide.</p>
+                    <p>If you ever have questions or concerns, we're here to help explain how anything works in language that makes sense.</p>
+                </div>
+            </section>
+        </div>
+
+        <div class="action-section">
+            <a href="{{ url_for('index') }}" class="action-button">
+                <span style="vertical-align: middle; display: inline-block; margin-right: 0.5em;">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20" style="vertical-align: middle;">
+                        <path d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"/>
+                    </svg>
+                </span>
+                Get Your Wisdom
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.privacy-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.privacy-section {
+    margin-bottom: 3rem;
+}
+
+.section-heading {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 0.5rem;
+}
+
+.data-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.data-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--card-background);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.data-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 0.2rem;
+}
+
+.data-details h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+}
+
+.data-details p {
+    color: var(--text-secondary);
+    margin: 0 0 0.75rem 0;
+    line-height: 1.6;
+}
+
+.data-purpose {
+    font-size: 0.9rem;
+    color: var(--accent-color);
+    font-weight: 500;
+    font-style: italic;
+}
+
+.no-data-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.no-data-item {
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #f0f9f0 0%, #e8f5e8 100%);
+    color: #2d5a2d;
+    border-radius: 10px;
+    font-weight: 500;
+    border: 2px solid #d1e7d1;
+}
+
+.security-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.security-item {
+    padding: 1.5rem;
+    background: var(--card-background);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.security-item h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem 0;
+}
+
+.security-item p {
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.why-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.why-item {
+    padding: 1.5rem;
+    background: var(--card-background);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.why-item h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem 0;
+}
+
+.why-item p {
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.trust-info {
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--card-background) 0%, var(--secondary-background, #f8f9fa) 100%);
+    border-radius: 16px;
+    border: 2px solid var(--accent-color);
+}
+
+.trust-info p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin: 0 0 1rem 0;
+    font-size: 1.05rem;
+}
+
+.trust-info p:last-child {
+    margin-bottom: 0;
+}
+
+.trust-info a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.trust-info a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 2rem;
+    }
+    
+    .data-item, .security-item, .why-item {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .data-icon {
+        align-self: flex-start;
+    }
+    
+    .no-data-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .trust-info {
+        padding: 1.5rem;
+    }
+}
+</style>
+{% endblock %}
