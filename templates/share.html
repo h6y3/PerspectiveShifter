@@ -217,7 +217,7 @@
         }
 
         function downloadForInstagram() {
-            // Create download link for image
+            // Create download link for image (already includes design=3)
             const link = document.createElement('a');
             link.href = quoteData.imageUrl;
             link.download = `wisdom-quote-${quoteData.id}.png`;
