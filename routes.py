@@ -3,7 +3,7 @@ import random
 from datetime import datetime
 from flask import render_template, request, redirect, url_for, flash, send_file, Response
 from api.index import app, db
-from models import QuoteCache, DailyStats
+from models import QuoteCache, DailyStats, ShareStats
 from openai_service import get_wisdom_quotes
 import logging
 import os
@@ -42,9 +42,20 @@ def index():
     stats = DailyStats.query.filter_by(date=today).first()
     daily_shifts = stats.total_shifts if stats else 0
     
+    # Get sharing stats for display
+    try:
+        total_shares = ShareStats.get_total_shares()
+        platform_breakdown = ShareStats.get_platform_breakdown()
+        platform_stats = dict(platform_breakdown)
+    except:
+        total_shares = 0
+        platform_stats = {}
+    
     return render_template('index.html', 
                          prompt=current_prompt,
                          daily_shifts=daily_shifts,
+                         total_shares=total_shares,
+                         platform_stats=platform_stats,
                          show_results=False)
 
 @app.route('/shift', methods=['POST'])
@@ -95,11 +106,22 @@ def shift_perspective():
         stats = DailyStats.query.filter_by(date=today).first()
         daily_shifts = stats.total_shifts if stats else 0
         
+        # Get sharing stats for display
+        try:
+            total_shares = ShareStats.get_total_shares()
+            platform_breakdown = ShareStats.get_platform_breakdown()
+            platform_stats = dict(platform_breakdown)
+        except:
+            total_shares = 0
+            platform_stats = {}
+        
         return render_template('index.html',
                              prompt=random.choice(PROMPTS),
                              user_input=user_input,
                              quotes=quotes_data,
                              daily_shifts=daily_shifts,
+                             total_shares=total_shares,
+                             platform_stats=platform_stats,
                              show_results=True)
     except Exception as e:
         logging.error(f"Error processing shift: {str(e)}")
@@ -123,6 +145,51 @@ def privacy():
 
 @app.route('/share/<quote_id>')
 def share_quote(quote_id):
+    """Shareable page with Open Graph meta tags for social media"""
+    try:
+        # Parse the quote_id format: cache_id_quote_index
+        if '_' not in quote_id:
+            flash('Invalid quote ID format', 'error')
+            return redirect(url_for('index'))
+        
+        cache_id, quote_index = quote_id.split('_', 1)
+        quote_index = int(quote_index)
+        
+        # Get quote cache from database
+        quote_cache = QuoteCache.query.get(cache_id)
+        if not quote_cache:
+            flash('Quote not found', 'error')
+            return redirect(url_for('index'))
+        
+        # Parse the stored quotes data (JSON array)
+        quotes_data = json.loads(quote_cache.response_data)
+        
+        # Get the specific quote by index
+        if quote_index >= len(quotes_data):
+            flash('Quote index out of range', 'error')
+            return redirect(url_for('index'))
+        
+        quote_data = quotes_data[quote_index]
+        
+        # Create sharing data
+        share_url = request.url
+        image_url = url_for('quote_image', quote_id=quote_id, design=3, _external=True)
+        
+        return render_template('share.html', 
+                             quote=quote_data,
+                             quote_id=quote_id,
+                             share_url=share_url,
+                             image_url=image_url,
+                             quote_cache=quote_cache)
+                             
+    except Exception as e:
+        logging.error(f"Error in share_quote: {str(e)}")
+        flash('Quote not found', 'error')
+        return redirect(url_for('index'))
+
+@app.route('/image/<quote_id>')
+def quote_image(quote_id):
+    """Generate and return quote image"""
     try:
         # Parse the quote_id format: cache_id_quote_index
         if '_' not in quote_id:
@@ -157,7 +224,7 @@ def share_quote(quote_id):
             design=design
         )
     except Exception as e:
-        logging.error(f"Error in share_quote: {str(e)}")
+        logging.error(f"Error in quote_image: {str(e)}")
         # Fallback to text if anything fails
         return redirect(url_for('share_text', quote_id=quote_id))
 
@@ -217,6 +284,43 @@ theperspectiveshift.vercel.app
 
 
 
+
+@app.route('/track-share/<quote_id>', methods=['POST'])
+def track_share(quote_id):
+    """Track sharing attempts anonymously"""
+    try:
+        # Parse the quote_id format: cache_id_quote_index
+        if '_' not in quote_id:
+            return {'status': 'error', 'message': 'Invalid quote ID format'}, 400
+        
+        cache_id, quote_index = quote_id.split('_', 1)
+        platform = request.json.get('platform') if request.json else None
+        
+        if platform in ['x', 'linkedin', 'native', 'instagram']:
+            share = ShareStats(quote_id=int(cache_id), platform=platform)
+            db.session.add(share)
+            db.session.commit()
+            return {'status': 'success'}
+        else:
+            return {'status': 'error', 'message': 'Invalid platform'}, 400
+    except Exception as e:
+        logging.error(f"Error tracking share: {str(e)}")
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route('/share-stats')
+def get_share_stats():
+    """Get sharing statistics for display"""
+    try:
+        total_shares = ShareStats.get_total_shares()
+        platform_breakdown = ShareStats.get_platform_breakdown()
+        
+        return {
+            'total': total_shares,
+            'platforms': dict(platform_breakdown)
+        }
+    except Exception as e:
+        logging.error(f"Error getting share stats: {str(e)}")
+        return {'total': 0, 'platforms': {}}
 
 @app.route('/health')
 def health_check():
