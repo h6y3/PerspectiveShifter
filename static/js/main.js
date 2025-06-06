@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     autoResizeTextarea();
     initializeKeyboardShortcuts();
     initializeQuoteActions();
+    initializeSharing();
 });
 
 // Dark Mode Toggle - Essential Gen Z Feature
@@ -504,3 +505,140 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Social Media Sharing Manager
+class SocialShareManager {
+    constructor(quoteData) {
+        this.quote = quoteData.text;
+        this.attribution = quoteData.attribution;
+        this.imageUrl = quoteData.imageUrl;
+        this.shareUrl = quoteData.shareUrl;
+        this.quoteId = quoteData.id;
+    }
+
+    async shareToX() {
+        const text = `"${this.quote}" - ${this.attribution} #wisdom #quotes`;
+        const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(this.shareUrl)}`;
+        this.trackShare('x');
+        this.openShareWindow(url, 550, 420);
+    }
+
+    async shareToLinkedIn() {
+        const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(this.shareUrl)}`;
+        this.trackShare('linkedin');
+        this.openShareWindow(url, 520, 570);
+    }
+
+    async shareViaWebAPI() {
+        if (!navigator.share) return false;
+        
+        try {
+            const shareData = {
+                title: 'Wisdom Quote from PerspectiveShifter',
+                text: `"${this.quote}" - ${this.attribution}`,
+                url: this.shareUrl
+            };
+
+            await navigator.share(shareData);
+            this.trackShare('native');
+            return true;
+        } catch (error) {
+            console.log('Web Share API failed:', error);
+            return false;
+        }
+    }
+
+    downloadForInstagram() {
+        // Create download link for image
+        const link = document.createElement('a');
+        link.href = this.imageUrl;
+        link.download = `wisdom-quote-${this.quoteId}.png`;
+        link.click();
+        
+        // Copy quote text to clipboard
+        const instagramText = `"${this.quote}" - ${this.attribution} #wisdom #quotes`;
+        copyToClipboard(instagramText);
+        
+        this.trackShare('instagram');
+        this.showInstagramGuidance();
+    }
+
+    trackShare(platform) {
+        // Privacy-centric tracking - no personal data, just aggregate counts
+        fetch(`/track-share/${this.quoteId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ platform: platform })
+        }).catch(() => {}); // Fail silently
+        
+        // Update UI counter immediately
+        this.updateShareCounter();
+    }
+
+    updateShareCounter() {
+        const counter = document.querySelector('.share-stats');
+        if (counter) {
+            const current = parseInt(counter.textContent.match(/\d+/)?.[0]) || 0;
+            counter.textContent = `${current + 1} quotes shared`;
+        }
+    }
+
+    openShareWindow(url, width, height) {
+        const left = (screen.width - width) / 2;
+        const top = (screen.height - height) / 2;
+        window.open(url, '_blank', `width=${width},height=${height},left=${left},top=${top}`);
+    }
+
+    showInstagramGuidance() {
+        showToast('Image downloaded & quote copied! Open Instagram → Create Story → Add photo', 'success');
+    }
+}
+
+// Initialize sharing for quotes
+function initializeSharing() {
+    const quoteCards = document.querySelectorAll('.quote-card');
+    
+    quoteCards.forEach(card => {
+        const shareSection = card.querySelector('.share-section');
+        if (!shareSection) return;
+        
+        // Extract quote data from the card
+        const quoteText = card.querySelector('.quote-text').textContent.replace(/"/g, '').trim();
+        const attribution = card.querySelector('.quote-attribution').textContent.replace(/—\s*/, '').trim();
+        const quoteId = card.dataset.quoteId;
+        
+        if (!quoteId) return;
+        
+        const quoteData = {
+            text: quoteText,
+            attribution: attribution,
+            imageUrl: `/image/${quoteId}?design=3`,
+            shareUrl: `${window.location.origin}/share/${quoteId}`,
+            id: quoteId
+        };
+        
+        const shareManager = new SocialShareManager(quoteData);
+        
+        // Attach event listeners to share buttons
+        const nativeShareBtn = shareSection.querySelector('[data-share="native"]');
+        const xShareBtn = shareSection.querySelector('[data-share="x"]');
+        const linkedinShareBtn = shareSection.querySelector('[data-share="linkedin"]');
+        const instagramShareBtn = shareSection.querySelector('[data-share="instagram"]');
+        
+        if (nativeShareBtn) {
+            nativeShareBtn.addEventListener('click', () => shareManager.shareViaWebAPI());
+        }
+        
+        if (xShareBtn) {
+            xShareBtn.addEventListener('click', () => shareManager.shareToX());
+        }
+        
+        if (linkedinShareBtn) {
+            linkedinShareBtn.addEventListener('click', () => shareManager.shareToLinkedIn());
+        }
+        
+        if (instagramShareBtn) {
+            instagramShareBtn.addEventListener('click', () => shareManager.downloadForInstagram());
+        }
+    });
+}

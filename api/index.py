@@ -55,9 +55,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # Initialize the app with the extension
 db.init_app(app)
 
-# Import models and routes
-import models  # noqa: F401
-import routes  # noqa: F401
+# Models and routes will be imported at the end of this file
 
 def init_db():
     """Initialize database tables if they don't exist"""
@@ -78,6 +76,10 @@ def init_db():
 # Initialize database on first import
 init_db()
 
+
+# Import models and routes after app setup
+import models  # noqa: F401
+import routes  # noqa: F401
 
 # Export the app for Vercel
 # Vercel will automatically detect this as the WSGI application
