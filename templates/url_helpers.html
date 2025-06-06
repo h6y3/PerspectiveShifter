@@ -1,0 +1,37 @@
+<!-- 
+JavaScript URL Helper Functions
+Include this template snippet to provide consistent URL construction in frontend code
+-->
+<script>
+// Centralized URL construction for frontend consistency
+window.UrlHelpers = {
+    // Get quote image URL with design parameter
+    getQuoteImageUrl: function(quoteId, design = 3) {
+        return `/image/${quoteId}?design=${design}`;
+    },
+    
+    // Get share page URL
+    getShareUrl: function(quoteId) {
+        return `/share/${quoteId}`;
+    },
+    
+    // Get tracking URL
+    getTrackUrl: function(quoteId) {
+        return `/track-share/${quoteId}`;
+    },
+    
+    // Get social media optimized image URL (always design=3)
+    getSocialMediaImageUrl: function(quoteId) {
+        return this.getQuoteImageUrl(quoteId, 3);
+    },
+    
+    // Get absolute URL for external sharing
+    getAbsoluteUrl: function(relativePath) {
+        return `${window.location.origin}${relativePath}`;
+    }
+};
+
+// Legacy compatibility - maintain existing function names
+window.getQuoteImageUrl = window.UrlHelpers.getQuoteImageUrl;
+window.getShareUrl = window.UrlHelpers.getShareUrl;
+</script>

@@ -81,6 +81,10 @@ init_db()
 import models  # noqa: F401
 import routes  # noqa: F401
 
+# Register template helpers for consistent URL generation
+from utils import register_template_helpers
+register_template_helpers(app)
+
 # Export the app for Vercel
 # Vercel will automatically detect this as the WSGI application
 if __name__ == "__main__":

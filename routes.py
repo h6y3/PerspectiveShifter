@@ -5,6 +5,7 @@ from flask import render_template, request, redirect, url_for, flash, send_file,
 from api.index import app, db
 from models import QuoteCache, DailyStats, ShareStats
 from openai_service import get_wisdom_quotes
+from utils import get_social_media_image_url, get_share_url
 import logging
 import os
 import hashlib
@@ -171,9 +172,9 @@ def share_quote(quote_id):
         
         quote_data = quotes_data[quote_index]
         
-        # Create sharing data
+        # Create sharing data using centralized helpers
         share_url = request.url
-        image_url = url_for('quote_image', quote_id=quote_id, design=3, _external=True)
+        image_url = get_social_media_image_url(quote_id)
         
         return render_template('share.html', 
                              quote=quote_data,

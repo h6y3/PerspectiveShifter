@@ -232,7 +232,7 @@
         }
 
         function trackShare(platform) {
-            fetch(`/track-share/${quoteData.id}`, {
+            fetch(UrlHelpers.getTrackUrl(quoteData.id), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ platform: platform })

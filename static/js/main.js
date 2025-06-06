@@ -565,7 +565,7 @@ class SocialShareManager {
 
     trackShare(platform) {
         // Privacy-centric tracking - no personal data, just aggregate counts
-        fetch(`/track-share/${this.quoteId}`, {
+        fetch(UrlHelpers.getTrackUrl(this.quoteId), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ platform: platform })
@@ -612,8 +612,8 @@ function initializeSharing() {
         const quoteData = {
             text: quoteText,
             attribution: attribution,
-            imageUrl: `/image/${quoteId}?design=3`,
-            shareUrl: `${window.location.origin}/share/${quoteId}`,
+            imageUrl: UrlHelpers.getSocialMediaImageUrl(quoteId),
+            shareUrl: UrlHelpers.getAbsoluteUrl(UrlHelpers.getShareUrl(quoteId)),
             id: quoteId
         };
         
