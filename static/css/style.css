@@ -495,13 +495,7 @@ h6,
     margin-top: var(--spacing-lg);
 }
 
-/* Remove legacy/unused styles for social/copy/share actions */
-.action-btn,
-.copy-btn,
-.share-twitter,
-.share-linkedin {
-    display: none !important;
-}
+/* Legacy styles removed - action-btn now used for new three-button layout */
 
 body,
 html {
