@@ -36,6 +36,9 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Main JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
     <!-- Structured Data for Rich Snippets -->
     <script type="application/ld+json">
@@ -115,8 +118,9 @@
         </footer>
     </div>
 
-    <!-- Sharing JavaScript -->
+    <!-- Share Page Specific JavaScript -->
     <script>
+        // Quote data for share page
         const quoteData = {
             text: "{{ quote.quote }}",
             attribution: "{{ quote.attribution }}",
@@ -124,115 +128,6 @@
             shareUrl: "{{ share_url }}",
             id: "{{ quote_id }}"
         };
-
-        async function shareViaWebAPI() {
-            if (!navigator.share) {
-                alert('Web Share API not supported on this browser. Please use the platform-specific buttons.');
-                return;
-            }
-            
-            try {
-                const shareData = {
-                    title: `"${quoteData.text}" - ${quoteData.attribution}`,
-                    text: `"${quoteData.text}" - ${quoteData.attribution}`,
-                    url: quoteData.shareUrl
-                };
-
-                await navigator.share(shareData);
-                trackShare('native');
-            } catch (error) {
-                console.log('Web Share API failed:', error);
-            }
-        }
-
-        function shareToX() {
-            const text = `"${quoteData.text}" - ${quoteData.attribution} #wisdom #quotes`;
-            const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(quoteData.shareUrl)}`;
-            trackShare('x');
-            openShareWindow(url, 550, 420);
-        }
-
-        function shareToLinkedIn() {
-            const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(quoteData.shareUrl)}`;
-            trackShare('linkedin');
-            openShareWindow(url, 520, 570);
-        }
-
-        function downloadForInstagram() {
-            // Create download link for image (already includes design=3)
-            const link = document.createElement('a');
-            link.href = quoteData.imageUrl;
-            link.download = `wisdom-quote-${quoteData.id}.png`;
-            link.click();
-            
-            // Copy quote text to clipboard
-            const instagramText = `"${quoteData.text}" - ${quoteData.attribution} #wisdom #quotes`;
-            copyToClipboard(instagramText);
-            
-            trackShare('instagram');
-            showToast('Image downloaded & quote copied! Open Instagram → Create Story → Add photo');
-        }
-
-        function trackShare(platform) {
-            fetch(UrlHelpers.getTrackUrl(quoteData.id), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ platform: platform })
-            }).catch(() => {}); // Fail silently
-        }
-
-        function openShareWindow(url, width, height) {
-            const left = (screen.width - width) / 2;
-            const top = (screen.height - height) / 2;
-            window.open(url, '_blank', `width=${width},height=${height},left=${left},top=${top}`);
-        }
-
-        async function copyToClipboard(text) {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(text);
-            } else {
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                textArea.style.position = 'fixed';
-                textArea.style.left = '-999999px';
-                textArea.style.top = '-999999px';
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                } finally {
-                    document.body.removeChild(textArea);
-                }
-            }
-        }
-
-        function showToast(message) {
-            // Simple toast notification
-            const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #FF6600;
-                color: black;
-                padding: 1rem;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                z-index: 1000;
-                max-width: 300px;
-                font-family: 'Space Mono', monospace;
-                font-size: 0.875rem;
-            `;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.parentNode.removeChild(toast);
-                }
-            }, 4000);
-        }
     </script>
 </body>
 
