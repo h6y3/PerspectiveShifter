@@ -676,9 +676,11 @@ function copyQuoteText(button) {
 }
 
 function downloadQuoteImage(button) {
-    const imageUrl = button.dataset.imageUrl;
     const quoteId = button.dataset.quoteId;
     const attribution = button.dataset.attribution;
+    
+    // Construct image URL using URL helper
+    const imageUrl = UrlHelpers.getSocialMediaImageUrl(quoteId);
     
     // Create download link
     const link = document.createElement('a');
