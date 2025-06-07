@@ -602,7 +602,8 @@ html {
     transform: translateX(0);
 }
 
-.toast.success {
+.toast.success,
+.toast.instagram-instructions {
     background-color: #FF6600;
     color: var(--color-black);
     border-left-color: #E55A00;
