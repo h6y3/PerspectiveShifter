@@ -269,14 +269,48 @@ function initializeKeyboardShortcuts() {
             }
         }
 
-        // Escape to clear form
+        // Escape to clear form or close dropdowns
         if (e.key === 'Escape') {
             const activeElement = document.activeElement;
+            
+            // Close any open dropdowns first
+            const openDropdown = document.querySelector('.dropdown-menu.show');
+            if (openDropdown) {
+                closeAllDropdowns();
+                return;
+            }
+            
+            // Then handle form clearing
             if (activeElement.tagName === 'TEXTAREA') {
                 activeElement.value = '';
                 activeElement.style.height = 'auto';
                 activeElement.blur();
                 showToast('Form cleared ✨');
+            }
+        }
+        
+        // Arrow key navigation for dropdowns
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            const focusedElement = document.activeElement;
+            const dropdown = focusedElement.closest('.dropdown-container');
+            
+            if (dropdown) {
+                e.preventDefault();
+                const dropdownMenu = dropdown.querySelector('.dropdown-menu');
+                const items = Array.from(dropdownMenu.querySelectorAll('.dropdown-item:not([style*="display: none"])'));
+                
+                if (items.length === 0) return;
+                
+                const currentIndex = items.indexOf(document.activeElement);
+                let nextIndex;
+                
+                if (e.key === 'ArrowDown') {
+                    nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+                } else {
+                    nextIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+                }
+                
+                items[nextIndex].focus();
             }
         }
     });
@@ -594,11 +628,199 @@ class SocialShareManager {
     }
 }
 
-// Initialize sharing for quotes
+// New Dropdown Management Functions
+function toggleShareDropdown(button) {
+    const container = button.closest('.dropdown-container');
+    const dropdown = container.querySelector('.dropdown-menu');
+    const isOpen = dropdown.classList.contains('show');
+    
+    // Close all other dropdowns first
+    closeAllDropdowns();
+    
+    if (!isOpen) {
+        dropdown.classList.add('show');
+        button.setAttribute('aria-expanded', 'true');
+    }
+}
+
+function closeAllDropdowns() {
+    document.querySelectorAll('.dropdown-menu').forEach(dropdown => {
+        dropdown.classList.remove('show');
+    });
+    document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+        toggle.setAttribute('aria-expanded', 'false');
+    });
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.dropdown-container')) {
+        closeAllDropdowns();
+    }
+});
+
+// New Three-Button Functions
+function copyQuoteText(button) {
+    const quote = button.dataset.quote;
+    const attribution = button.dataset.attribution;
+    const text = `"${quote}" - ${attribution}`;
+    
+    copyToClipboard(text);
+    
+    // Track copy action
+    const card = button.closest('.quote-card');
+    const quoteId = card.dataset.quoteId;
+    trackShareAction(quoteId, 'copy');
+    
+    showToast('Quote copied to clipboard!', 'success');
+}
+
+function downloadQuoteImage(button) {
+    const imageUrl = button.dataset.imageUrl;
+    const quoteId = button.dataset.quoteId;
+    const attribution = button.dataset.attribution;
+    
+    // Create download link
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = `wisdom-quote-${attribution.replace(/\s+/g, '-')}-${quoteId}.png`;
+    link.click();
+    
+    // Track download action
+    trackShareAction(quoteId, 'download');
+    
+    showToast('Image downloaded!', 'success');
+}
+
+// Enhanced Instagram sharing workflow
+function shareToInstagramStory(button) {
+    const card = button.closest('.quote-card');
+    const quoteId = card.dataset.quoteId;
+    const quote = card.querySelector('.quote-text').textContent.replace(/"/g, '').trim();
+    const attribution = card.querySelector('.quote-attribution').textContent.replace(/—\s*/, '').trim();
+    
+    // 1. Download with descriptive filename
+    const imageUrl = UrlHelpers.getSocialMediaImageUrl(quoteId);
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = `wisdom-quote-${attribution.replace(/\s+/g, '-')}-${quoteId}.png`;
+    link.click();
+    
+    // 2. Copy formatted text with hashtags
+    const instagramText = `"${quote}" - ${attribution}\n\n#wisdom #quotes #perspective`;
+    copyToClipboard(instagramText);
+    
+    // 3. Show enhanced instructions
+    showInstagramInstructions();
+    
+    // 4. Track with specific action
+    trackShareAction(quoteId, 'instagram');
+    
+    // Close dropdown
+    closeAllDropdowns();
+}
+
+function showInstagramInstructions() {
+    showToast(`✓ Image downloaded & quote copied!
+
+Next steps:
+1. Open Instagram
+2. Create new Story  
+3. Add your downloaded image
+4. Paste the quote text`, 'instagram-instructions', 6000);
+}
+
+// Enhanced sharing functions for dropdown items
+function shareViaWebAPI(button) {
+    const card = button.closest('.quote-card');
+    const quoteId = card.dataset.quoteId;
+    const quote = card.querySelector('.quote-text').textContent.replace(/"/g, '').trim();
+    const attribution = card.querySelector('.quote-attribution').textContent.replace(/—\s*/, '').trim();
+    const shareUrl = UrlHelpers.getAbsoluteUrl(UrlHelpers.getShareUrl(quoteId));
+    
+    if (!navigator.share) {
+        showToast('Native sharing not supported on this device', 'error');
+        return;
+    }
+    
+    const shareData = {
+        title: 'Wisdom Quote from PerspectiveShifter',
+        text: `"${quote}" - ${attribution}`,
+        url: shareUrl
+    };
+    
+    navigator.share(shareData)
+        .then(() => {
+            trackShareAction(quoteId, 'native');
+            showToast('Quote shared!', 'success');
+        })
+        .catch((error) => {
+            console.log('Web Share API failed:', error);
+            showToast('Sharing cancelled', 'info');
+        });
+    
+    closeAllDropdowns();
+}
+
+function shareToX(button) {
+    const card = button.closest('.quote-card');
+    const quoteId = card.dataset.quoteId;
+    const quote = card.querySelector('.quote-text').textContent.replace(/"/g, '').trim();
+    const attribution = card.querySelector('.quote-attribution').textContent.replace(/—\s*/, '').trim();
+    const shareUrl = UrlHelpers.getAbsoluteUrl(UrlHelpers.getShareUrl(quoteId));
+    
+    const text = `"${quote}" - ${attribution} #wisdom #quotes`;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
+    
+    trackShareAction(quoteId, 'x');
+    openShareWindow(url, 550, 420);
+    closeAllDropdowns();
+}
+
+function shareToLinkedIn(button) {
+    const card = button.closest('.quote-card');
+    const quoteId = card.dataset.quoteId;
+    const shareUrl = UrlHelpers.getAbsoluteUrl(UrlHelpers.getShareUrl(quoteId));
+    
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+    
+    trackShareAction(quoteId, 'linkedin');
+    openShareWindow(url, 520, 570);
+    closeAllDropdowns();
+}
+
+// Helper functions
+function trackShareAction(quoteId, platform) {
+    fetch(UrlHelpers.getTrackUrl(quoteId), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ platform: platform })
+    }).catch(() => {}); // Fail silently
+}
+
+function openShareWindow(url, width, height) {
+    const left = (screen.width - width) / 2;
+    const top = (screen.height - height) / 2;
+    window.open(url, '_blank', `width=${width},height=${height},left=${left},top=${top}`);
+}
+
+function shouldShowNativeShare() {
+    return navigator.share && /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+// Initialize sharing for quotes (Updated for new layout)
 function initializeSharing() {
     const quoteCards = document.querySelectorAll('.quote-card');
     
     quoteCards.forEach(card => {
+        // Check for new layout first
+        const newActions = card.querySelector('.quote-actions-redesigned');
+        if (newActions) {
+            // New three-button layout - handled by onclick attributes
+            return;
+        }
+        
+        // Legacy layout support
         const shareSection = card.querySelector('.share-section');
         if (!shareSection) return;
         
