@@ -558,7 +558,12 @@ class SocialShareManager {
     }
 
     async shareToLinkedIn() {
-        const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(this.shareUrl)}`;
+        // Create LinkedIn post with prefilled text
+        const shareText = `"${this.quote}" - ${this.attribution}
+
+Discover more wisdom quotes that match your moment at The Perspective Shift 🔗`;
+        
+        const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(this.shareUrl)}&summary=${encodeURIComponent(shareText)}`;
         this.trackShare('linkedin');
         this.openShareWindow(url, 520, 570);
     }
@@ -782,12 +787,21 @@ function shareToX(button) {
 function shareToLinkedIn(button) {
     const card = button.closest('.quote-card');
     const quoteId = card.dataset.quoteId;
+    const quote = card.querySelector('.quote-text').textContent.replace(/"/g, '').trim();
+    const attribution = card.querySelector('.quote-attribution').textContent.replace(/—\s*/, '').trim();
+    
+    // Create LinkedIn post with prefilled text and image
+    const shareText = `"${quote}" - ${attribution}
+
+Discover more wisdom quotes that match your moment at The Perspective Shift 🔗`;
+    
     const shareUrl = UrlHelpers.getAbsoluteUrl(UrlHelpers.getShareUrl(quoteId));
     
-    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+    // LinkedIn sharing with text prefill
+    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}&summary=${encodeURIComponent(shareText)}`;
     
     trackShareAction(quoteId, 'linkedin');
-    openShareWindow(url, 520, 570);
+    openShareWindow(linkedinUrl, 520, 570);
     closeAllDropdowns();
 }
 
