@@ -7,7 +7,7 @@
     <title>"{{ quote.quote }}" - {{ quote.attribution }} | The Perspective Shift</title>
 
     <!-- Enhanced Open Graph Meta Tags for Social Sharing -->
-    <meta property="og:title" content="&quot;{{ quote.quote }}&quot; - {{ quote.attribution }}">
+    <meta property="og:title" content='{{ quote.quote }} - {{ quote.attribution }}'>
     <meta property="og:description" content="{{ quote.perspective[:200] }}...">
     <meta property="og:type" content="article">
     <meta property="og:url" content="{{ share_url }}">
@@ -19,13 +19,13 @@
 
     <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="&quot;{{ quote.quote }}&quot; - {{ quote.attribution }}">
+    <meta name="twitter:title" content='{{ quote.quote }} - {{ quote.attribution }}'>
     <meta name="twitter:description" content="{{ quote.perspective[:200] }}...">
     <meta name="twitter:image" content="{{ image_url }}">
     <meta name="twitter:site" content="@PerspectiveShift">
 
     <!-- Additional Meta Tags -->
-    <meta name="description" content="&quot;{{ quote.quote }}&quot; - {{ quote.attribution }}. {{ quote.perspective[:150] }}...">
+    <meta name="description" content='{{ quote.quote }} - {{ quote.attribution }}. {{ quote.perspective[:150] }}...'>
     <meta name="keywords" content="wisdom quotes, perspective, {{ quote.attribution }}, philosophy, inspiration">
     <meta name="author" content="The Perspective Shift">
 
