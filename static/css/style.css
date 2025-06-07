@@ -495,13 +495,7 @@ h6,
     margin-top: var(--spacing-lg);
 }
 
-/* Remove legacy/unused styles for social/copy/share actions */
-.action-btn,
-.copy-btn,
-.share-twitter,
-.share-linkedin {
-    display: none !important;
-}
+/* Legacy styles removed - action-btn now used for new three-button layout */
 
 body,
 html {
@@ -608,7 +602,8 @@ html {
     transform: translateX(0);
 }
 
-.toast.success {
+.toast.success,
+.toast.instagram-instructions {
     background-color: #FF6600;
     color: var(--color-black);
     border-left-color: #E55A00;
@@ -778,16 +773,6 @@ html {
     border-color: #E55A00;
 }
 
-.share-btn.instagram {
-    background-color: #E4405F;
-    color: var(--color-white);
-    border-color: #E4405F;
-}
-
-.share-btn.instagram:hover {
-    background-color: #C23650;
-    border-color: #C23650;
-}
 
 .share-btn svg {
     width: 16px;
@@ -917,6 +902,188 @@ html {
     width: 100%;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* New Three-Button Layout */
+.quote-actions-redesigned {
+    display: flex;
+    gap: var(--spacing-xs);
+    justify-content: center;
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-gray-200);
+}
+
+/* Action Button Base Styles */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: inherit;
+    border: 1px solid var(--color-gray-200);
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition-base);
+    min-height: 44px;
+}
+
+/* Primary Action (Share - Orange) */
+.action-btn.primary {
+    background-color: #FF6600;
+    color: var(--color-black);
+    border-color: #FF6600;
+}
+
+.action-btn.primary:hover {
+    background-color: #E55A00;
+    border-color: #E55A00;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(255, 102, 0, 0.2);
+}
+
+/* Secondary Actions (Copy/Download - Monochrome) */
+.action-btn.secondary {
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-600);
+    border-color: var(--color-gray-200);
+}
+
+.action-btn.secondary:hover {
+    background-color: var(--color-gray-200);
+    color: var(--color-black);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:focus {
+    outline: 2px solid #FF6600;
+    outline-offset: 2px;
+}
+
+.action-btn svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* Dropdown Components */
+.dropdown-container {
+    position: relative;
+}
+
+.dropdown-toggle {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: var(--color-white);
+    border: 1px solid #FF6600;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(255, 102, 0, 0.2);
+    z-index: 1000;
+    min-width: 200px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+}
+
+.dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    width: 100%;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    text-align: left;
+    border: none;
+    background: none;
+    color: var(--color-gray-600);
+    font-size: 0.875rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: var(--transition-base);
+    border-radius: 0;
+}
+
+.dropdown-item:first-child {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.dropdown-item:last-child {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: var(--color-gray-100);
+    color: var(--color-black);
+    outline: none;
+}
+
+.dropdown-item:focus {
+    background-color: #FF6600;
+    color: var(--color-white);
+}
+
+.dropdown-item svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* Screen Reader Only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Hide native share on desktop */
+@media (min-width: 768px) {
+    .dropdown-item.mobile-only {
+        display: none;
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+    .quote-actions-redesigned {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .action-btn {
+        min-height: 44px;
+        font-size: 1rem;
+        justify-content: center;
+    }
+    
+    .dropdown-menu {
+        left: 0;
+        right: 0;
+        min-width: auto;
+    }
 }
 
 /* Share page responsive design */
