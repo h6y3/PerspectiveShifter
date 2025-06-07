@@ -787,18 +787,10 @@ function shareToX(button) {
 function shareToLinkedIn(button) {
     const card = button.closest('.quote-card');
     const quoteId = card.dataset.quoteId;
-    const quote = card.querySelector('.quote-text').textContent.replace(/"/g, '').trim();
-    const attribution = card.querySelector('.quote-attribution').textContent.replace(/—\s*/, '').trim();
-    
-    // Create LinkedIn post with prefilled text and image
-    const shareText = `"${quote}" - ${attribution}
-
-Discover more wisdom quotes that match your moment at The Perspective Shift 🔗`;
-    
     const shareUrl = UrlHelpers.getAbsoluteUrl(UrlHelpers.getShareUrl(quoteId));
     
-    // LinkedIn sharing with text prefill
-    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}&summary=${encodeURIComponent(shareText)}`;
+    // LinkedIn 2024: Only Open Graph tags work, no URL parameters for prefill
+    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
     
     trackShareAction(quoteId, 'linkedin');
     openShareWindow(linkedinUrl, 520, 570);
