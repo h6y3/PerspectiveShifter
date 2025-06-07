@@ -105,8 +105,8 @@ def create_share_image_buffer(quote_text, attribution, perspective_text, design=
     """
     # Design 3: Enhanced Split Layout (Default)
     if design == 3:
-        width = 1080
-        height = 1080
+        width = 1200
+        height = 1200
         bg_color = (255, 255, 255)  # White
         black = (0, 0, 0)
         orange = (255, 87, 34)  # #FF5722
