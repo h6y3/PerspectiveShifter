@@ -126,3 +126,98 @@ FLASK_PORT=5001
 - **Privacy-First Design:** Never store personal data or implement user tracking
 - **Serverless Optimization:** Minimize cold start overhead in all code paths
 - **Error Resilience:** Every external integration has fallback mechanisms
+
+## Script Organization Rules
+
+**Directory Structure:**
+```
+scripts/
+├── tests/          # Core test suite - runs on every deploy
+├── dev-tools/      # Developer productivity tools (ongoing use)
+├── maintenance/    # Production maintenance scripts (must be credential-free)
+└── temp/           # Local experiments (.gitignore'd, never committed)
+```
+
+**Script Placement Guidelines:**
+
+**scripts/tests/** - Core test suite for automated deployment:
+- Scripts that should run on every deploy or CI/CD
+- Comprehensive production health checks
+- Cross-platform validation tests
+- API testing suites
+- Must be reliable, fast, and exit with proper codes
+
+**scripts/dev-tools/** - Developer productivity tools:
+- Performance testing utilities
+- Quick status checks for development
+- Debugging helpers and diagnostics
+- Tools for ongoing development workflow
+
+**scripts/maintenance/** - Production maintenance:
+- Database migration scripts
+- Production health monitoring
+- Deployment utilities
+- Must NEVER contain hardcoded credentials (use environment variables)
+
+**scripts/temp/** - Temporary experiments (gitignored):
+- One-time verification scripts
+- Ad-hoc testing and debugging
+- Feature exploration and prototyping
+- Anything that doesn't provide ongoing value
+
+**Key Rules:**
+1. **Core test suite priority**: If a script could be part of automated testing, place in `scripts/tests/`
+2. **Developer productivity**: Ongoing useful tools go in `scripts/dev-tools/`
+3. **Zero credentials**: Production scripts must use environment variables only
+4. **Temporary = temp/**: One-time scripts go in `scripts/temp/` (never committed)
+5. **Clean up regularly**: Remove outdated scripts to prevent feature drift
+
+## Documentation Organization Rules
+
+**Directory Structure:**
+```
+docs/
+├── specs/          # Formal specifications (dated, permanent)
+├── temp/           # Ephemeral documentation (.gitignore'd, never committed)
+├── *.md            # Permanent project documentation
+```
+
+**Documentation Types:**
+
+**Permanent Documentation (commit to repo):**
+- **Root level**: README.md, DEPLOYMENT.md, CLAUDE.md, CLAUDE.local.md
+- **docs/**: DEVELOPMENT_RUNBOOK.md, testing-standards.md, architectural docs
+- **docs/specs/**: Formal specifications with date prefixes (e.g., 2025-06-08-feature-name.md)
+
+**Ephemeral Documentation (docs/temp/, gitignored):**
+- Point-in-time testing plans and checklists
+- Development phase documentation (clearly marked as TEMPORARY)
+- Manual testing procedures specific to current work
+- Investigation notes and debugging documentation
+- Anything useful "in the moment" but not long-term
+
+**Ephemeral Documentation Rules:**
+1. **Mark as temporary**: Include "TEMPORARY FILE" header with deletion criteria
+2. **Use docs/temp/**: Never commit ephemeral docs to the main repo
+3. **Clean up regularly**: Delete after the specific development phase ends
+4. **Convert to permanent if valuable**: If insights prove long-term valuable, refactor into proper documentation
+5. **Date prefixes for context**: Use format like `2025-06-08-mobile-testing-plan.md` for temporal context
+
+## Root Directory Hygiene
+
+**Keep Root Clean**: The project root should only contain:
+- **Core application files**: Main Flask app files (routes.py, models.py, openai_service.py, etc.)
+- **Configuration files**: requirements.txt, vercel.json, .gitignore, etc.
+- **Essential documentation**: README.md, DEPLOYMENT.md, CLAUDE.md, CLAUDE.local.md
+
+**Never Leave in Root:**
+- Debug scripts (debug-*.py, test-*.py, scratch-*.py)
+- Temporary test files or experimental code
+- One-off investigation scripts
+- Development artifacts
+
+**Root Cleanup Rule**: Any debug, test, or temporary .py files in root should be moved to `scripts/temp/` immediately. The root directory represents the professional face of the project.
+
+### Memories and Development Notes
+
+- Figure the file format out for docs/spec. The file name format needs to be respected for documentation

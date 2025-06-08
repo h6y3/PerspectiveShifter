@@ -181,6 +181,12 @@ test_*.png
 generated-*.png
 attached_assets/
 
+# Temporary scripts and experiments
+scripts/temp/
+
+# Ephemeral documentation
+docs/temp/
+
 # Fonts (using Google Fonts instead)
 # fonts/
 # Allow static/fonts for image generation
