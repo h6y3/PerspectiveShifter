@@ -28,12 +28,33 @@ python main.py  # Auto-creates tables
 
 **Testing and Debugging:**
 ```bash
-# Test OpenAI service integration
-python -c "from openai_service import get_wisdom_quotes; print(get_wisdom_quotes('feeling stressed'))"
+# Test OpenAI service integration (local development)
+python3 -c "from openai_service import get_wisdom_quotes; print(get_wisdom_quotes('feeling stressed'))"
+
+# PRODUCTION DEPLOYMENT VERIFICATION (CRITICAL - run after every deploy)
+python3 scripts/tests/deployment/production_health_check.py
+
+# Run complete test suite (unit, integration, deployment, performance)
+python3 scripts/tests/run_tests.py
+
+# Test specific deployed endpoints manually
+python3 -c "import urllib.request; import json; response = urllib.request.urlopen('https://theperspectiveshift.vercel.app/health'); print(json.loads(response.read().decode()))"
+
+# Test API v1 endpoints (after fixing deployment issues)
+python3 -c "import urllib.request; response = urllib.request.urlopen('https://theperspectiveshift.vercel.app/api/v1/health'); print(response.status)"
 
 # Check deployed font loading (for troubleshooting image generation)
-curl https://your-app.vercel.app/debug_files
+curl https://theperspectiveshift.vercel.app/debug_files
+
+# Troubleshoot deployment failures
+vercel logs https://theperspectiveshift.vercel.app
 ```
+
+**Network Access Notes:**
+- Claude Code CAN make HTTP requests using urllib (built-in)
+- Claude Code CANNOT use requests library (not installed)
+- Use urllib.request for testing deployed endpoints
+- Can verify deployment success and API functionality remotely
 
 ## Architecture Overview
 
@@ -92,10 +113,160 @@ FLASK_PORT=5001
 - Static file serving for CSS, JS, fonts, and images
 - Route rewrites with static routes prioritized before Flask catch-all
 
+**CRITICAL: Vercel Configuration Rules (Learned 2025-06-08):**
+- **CANNOT use both `builds` and `functions`** - Vercel will reject deployment
+- **Use `functions` only** for modern Vercel deployments
+- **Pattern matching** in functions config applies to multiple endpoints
+- **maxDuration** can be set per function pattern (30s for API, 60s for MCP)
+- **Route rewrites** must map sources to specific .py files
+
+**Correct vercel.json structure:**
+```json
+{
+  "version": 2,
+  "functions": {
+    "api/*.py": {"runtime": "@vercel/python", "maxDuration": 30},
+    "api/v1/*.py": {"runtime": "@vercel/python", "maxDuration": 30},
+    "api/mcp/*.py": {"runtime": "@vercel/python", "maxDuration": 60}
+  },
+  "rewrites": [
+    {"source": "/api/v1/quotes", "destination": "/api/v1/quotes.py"},
+    {"source": "/api/mcp/server", "destination": "/api/mcp/server.py"}
+  ]
+}
+```
+
+**Deployment Commands:**
+```bash
+# Preview deployment (feature branch)
+vercel --prod=false --yes
+
+# Production deployment  
+vercel --prod --yes
+
+# Check deployment status
+vercel ls
+
+# Comprehensive deployment verification (CRITICAL)
+python3 scripts/tests/deployment/production_health_check.py
+
+# Check deployment logs for troubleshooting
+vercel logs https://theperspectiveshift.vercel.app
+```
+
 **Database Strategy:**
 - Development: SQLite with local file storage
 - Production: PostgreSQL (Vercel Postgres recommended)
 - Auto-migration on application startup
+
+## Vercel Python Serverless Functions (CRITICAL KNOWLEDGE - 2025-06-08)
+
+**LESSON LEARNED**: Our initial Flask-based API implementation failed in production. Vercel Python functions require a specific pattern that differs from standard Flask applications.
+
+### Required Serverless Function Pattern
+
+**Correct Pattern (✅):**
+```python
+from http.server import BaseHTTPRequestHandler
+import json
+
+class handler(BaseHTTPRequestHandler):  # Must be lowercase 'handler'
+    def do_GET(self):
+        """Handle GET requests"""
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        
+        response_data = {"status": "ok", "message": "Hello from API"}
+        self.wfile.write(json.dumps(response_data).encode())
+    
+    def do_POST(self):
+        """Handle POST requests"""
+        content_length = int(self.headers.get('content-length', 0))
+        post_data = self.rfile.read(content_length)
+        request_data = json.loads(post_data.decode('utf-8'))
+        
+        # Process request...
+        response_data = {"received": request_data}
+        
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        self.wfile.write(json.dumps(response_data).encode())
+    
+    def do_OPTIONS(self):
+        """Handle CORS preflight"""
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+```
+
+**Incorrect Pattern (❌) - DO NOT USE:**
+```python
+# This Flask pattern DOES NOT WORK in Vercel serverless functions
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+@app.route('/api/endpoint')
+def endpoint():
+    return jsonify({"status": "ok"})
+
+def handler(request):
+    return app.full_dispatch_request()  # This fails!
+```
+
+### Key Requirements for Vercel Python Functions
+
+1. **Handler Class Name**: Must be exactly `handler` (lowercase)
+2. **Inheritance**: Must inherit from `BaseHTTPRequestHandler`
+3. **HTTP Methods**: Implement `do_GET()`, `do_POST()`, `do_OPTIONS()` as needed
+4. **CORS Headers**: Must manually set all CORS headers
+5. **Error Handling**: Must handle all exceptions within the class methods
+6. **Dependencies**: Keep dependencies minimal - complex imports may fail
+
+### Common Error Patterns and Solutions
+
+**Error: "TypeError: issubclass() arg 1 must be a class"**
+- **Cause**: Handler is not properly inheriting from BaseHTTPRequestHandler
+- **Solution**: Ensure `class handler(BaseHTTPRequestHandler)` with lowercase 'handler'
+
+**Error: "ImportError" or "ModuleNotFoundError"**
+- **Cause**: Complex import paths or custom modules not accessible
+- **Solution**: Use simple, self-contained functions with minimal imports
+
+**Error: "Internal Server Error" with no specific message**
+- **Cause**: Unhandled exception in handler methods
+- **Solution**: Add comprehensive try/catch blocks
+
+### Deployment Verification Process
+
+**Always run after deployment:**
+```bash
+# 1. Deploy to Vercel
+vercel --prod --yes
+
+# 2. Verify deployment health
+python3 scripts/tests/deployment/production_health_check.py
+
+# 3. If issues found, check logs
+vercel logs https://theperspectiveshift.vercel.app
+
+# 4. Test specific endpoints manually
+python3 -c "import urllib.request; print(urllib.request.urlopen('https://theperspectiveshift.vercel.app/api/v1/health').read().decode())"
+```
+
+### Debugging Failed Deployments
+
+1. **Check Runtime Logs**: `vercel logs <deployment-url>`
+2. **Check Build Logs**: `vercel inspect --logs <deployment-id>`
+3. **Verify Handler Pattern**: Ensure BaseHTTPRequestHandler inheritance
+4. **Test Locally**: Use simple HTTP server for testing before deployment
+5. **Simplify Dependencies**: Remove complex imports if possible
 
 ### Key Integration Points
 
@@ -126,6 +297,118 @@ FLASK_PORT=5001
 - **Privacy-First Design:** Never store personal data or implement user tracking
 - **Serverless Optimization:** Minimize cold start overhead in all code paths
 - **Error Resilience:** Every external integration has fallback mechanisms
+- **Deployment Verification:** ALWAYS run health check after deployment
+- **Vercel Function Pattern:** Use BaseHTTPRequestHandler, not Flask, for API endpoints
+
+## Deployment Troubleshooting Guide (2025-06-08)
+
+**Common Issues and Solutions:**
+
+### Issue: API endpoints returning 500 errors
+**Symptoms:** `HTTP 500: Internal Server Error` on `/api/v1/*` endpoints
+**Root Cause:** Incorrect Vercel Python function pattern
+**Solution:** 
+1. Check handler class inherits from `BaseHTTPRequestHandler`
+2. Ensure class name is exactly `handler` (lowercase)
+3. Verify no complex imports or Flask usage
+4. Check logs: `vercel logs <deployment-url>`
+
+### Issue: Import errors in serverless functions
+**Symptoms:** `ModuleNotFoundError` or `ImportError` in logs
+**Root Cause:** Complex import paths don't work in Vercel environment
+**Solution:**
+1. Simplify imports to built-in modules only
+2. Avoid custom `lib/` module imports in serverless functions
+3. Use self-contained function implementations
+
+### Issue: Deployment appears successful but endpoints fail
+**Symptoms:** `vercel --prod` succeeds but health check fails
+**Root Cause:** Build success ≠ runtime success
+**Solution:**
+1. Always run `python3 scripts/tests/deployment/production_health_check.py` after deployment
+2. Check runtime logs: `vercel logs <url>`
+3. Test critical endpoints manually
+
+### Issue: CORS errors in browser
+**Symptoms:** Browser blocks API requests due to CORS policy
+**Root Cause:** Missing CORS headers in serverless functions
+**Solution:** Add these headers to all responses:
+```python
+self.send_header('Access-Control-Allow-Origin', '*')
+self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+```
+
+**Debugging Workflow:**
+1. Deploy: `vercel --prod --yes`
+2. Verify: `python3 scripts/tests/deployment/production_health_check.py`
+3. If failures: `vercel logs <deployment-url>`
+4. Fix issues and redeploy
+5. Re-verify until health check passes
+
+## MCP and REST API Architecture (2025-06-08)
+
+**PerspectiveShifter** now includes comprehensive API capabilities enabling Claude Desktop integration and future mobile app development through a strangler pattern migration.
+
+### API Architecture Overview
+
+**Strangler Pattern Implementation:**
+- **Phase 1**: New `WisdomService` wraps legacy `openai_service.py` 
+- **Phase 2**: REST API v1 endpoints using new service layer
+- **Phase 3**: MCP server for Claude Desktop integration
+- **Legacy Compatibility**: Web application continues using existing routes during migration
+
+**Service Layer (`lib/api/`):**
+- `wisdom_service.py`: Core quote generation with rate limiting integration
+- `rate_limiter.py`: Budget-based quota management ($1/day OpenAI budget)
+- `response_formatter.py`: Multi-format responses (API, MCP, Web)
+
+**REST API Endpoints (`api/v1/`) - IMPLEMENTED:**
+- `POST /api/v1/quotes`: Generate wisdom quotes with validation ✅
+- `GET /api/v1/quotes/{id}`: Retrieve cached quotes ✅
+- `GET /api/v1/images/{id}`: Generate quote images (redirects to existing endpoint) ✅
+- `GET /api/v1/health`: System health and quota monitoring ✅
+- `GET /api/v1/stats`: Anonymous usage statistics ✅
+
+**Implementation Status (2025-06-08):**
+- **Working**: All API v1 endpoints return 200 OK responses
+- **Pattern**: Using BaseHTTPRequestHandler (not Flask) for Vercel compatibility
+- **Integration**: Basic responses implemented; full service layer integration pending
+- **Testing**: Comprehensive health check script validates all endpoints
+
+**MCP Integration (`api/mcp/`):**
+- `POST /api/mcp/server`: JSON-RPC 2.0 endpoint for Claude Desktop
+- `GET /api/mcp/info`: Server capabilities and tool listing
+- `GET /api/mcp/config`: Claude Desktop configuration generator
+
+### Rate Limiting Strategy
+
+**Multi-Tier Protection:**
+- **Global Budget**: $1/day OpenAI spending limit (≈2,200 quotes)
+- **Per-IP Limits**: 50 quotes/hour per IP address
+- **Burst Protection**: 1-5 quotes/minute per IP
+- **AI Agent Detection**: 2x higher limits for Claude Desktop (User-Agent based)
+
+**Environment Variables:**
+```env
+API_DAILY_BUDGET_USD=1.00
+API_RATE_LIMIT_ENABLED=true
+API_MAX_QUOTES_PER_IP_HOUR=50
+```
+
+### MCP Tools for Claude Desktop
+
+**Available Tools:**
+1. `generate_wisdom_quote`: Create personalized quotes with style preferences
+2. `create_quote_image`: Generate shareable images for quotes
+3. `get_wisdom_quote`: Retrieve quotes by ID
+4. `get_system_status`: Check service health and quota status
+
+**Claude Desktop Setup:**
+1. Get configuration from `/api/mcp/config`
+2. Add to Claude Desktop MCP settings
+3. Restart Claude Desktop
+4. Tools appear automatically in conversations
 
 ## Script Organization Rules
 
@@ -140,12 +423,45 @@ scripts/
 
 **Script Placement Guidelines:**
 
-**scripts/tests/** - Core test suite for automated deployment:
-- Scripts that should run on every deploy or CI/CD
-- Comprehensive production health checks
-- Cross-platform validation tests
-- API testing suites
-- Must be reliable, fast, and exit with proper codes
+**scripts/tests/** - Comprehensive test suite organized by category:
+
+**Test Suite Structure:**
+```
+scripts/tests/
+├── run_tests.py              # Main test runner (run all tests)
+├── unit/                     # Unit tests for individual components
+│   ├── test_wisdom_service.py
+│   ├── test_rate_limiter.py
+│   └── test_response_formatter.py
+├── integration/              # Integration and API tests
+│   ├── test_quotes_api.py
+│   ├── test_mcp_integration.py
+│   ├── test_sharing_api.py
+│   └── validate_sharing_platforms.py
+├── deployment/               # Production deployment verification
+│   └── production_health_check.py
+└── performance/              # Performance and load tests
+    └── performance_test_sharing.py
+```
+
+**Running Tests:**
+```bash
+# Run complete test suite
+python3 scripts/tests/run_tests.py
+
+# Run specific test categories
+python3 scripts/tests/unit/test_wisdom_service.py
+python3 scripts/tests/deployment/production_health_check.py
+
+# CRITICAL: Always run after deployment
+python3 scripts/tests/deployment/production_health_check.py
+```
+
+**Test Categories:**
+- **Unit Tests**: Core service logic, data validation, utility functions
+- **Integration Tests**: API endpoints, database operations, external services
+- **Deployment Tests**: Production health, environment validation, configuration
+- **Performance Tests**: Load testing, response times, resource usage
 
 **scripts/dev-tools/** - Developer productivity tools:
 - Performance testing utilities

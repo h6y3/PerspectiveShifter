@@ -1,15 +1,59 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
+  "functions": {
+    "api/*.py": {
+      "runtime": "@vercel/python@4.3.0",
+      "maxDuration": 30
+    },
+    "api/v1/*.py": {
+      "runtime": "@vercel/python@4.3.0",
+      "maxDuration": 30
+    },
+    "api/mcp/*.py": {
+      "runtime": "@vercel/python@4.3.0",
+      "maxDuration": 60
     }
-  ],
+  },
   "rewrites": [
     {
       "source": "/static/(.*)",
       "destination": "/static/$1"
+    },
+    {
+      "source": "/api/v1/quotes",
+      "destination": "/api/v1/quotes.py"
+    },
+    {
+      "source": "/api/v1/quotes/(.*)",
+      "destination": "/api/v1/quotes.py"
+    },
+    {
+      "source": "/api/v1/images",
+      "destination": "/api/v1/images.py"
+    },
+    {
+      "source": "/api/v1/images/(.*)",
+      "destination": "/api/v1/images.py"
+    },
+    {
+      "source": "/api/v1/health",
+      "destination": "/api/v1/health.py"
+    },
+    {
+      "source": "/api/v1/stats",
+      "destination": "/api/v1/health.py"
+    },
+    {
+      "source": "/api/mcp/server",
+      "destination": "/api/mcp/server.py"
+    },
+    {
+      "source": "/api/mcp/info",
+      "destination": "/api/mcp/server.py"
+    },
+    {
+      "source": "/api/mcp/config",
+      "destination": "/api/mcp/server.py"
     },
     {
       "source": "/(.*)",
@@ -19,7 +63,10 @@
   "env": {
     "FLASK_ENV": "production",
     "PYTHONPATH": ".",
-    "FLASK_APP": "api/index.py"
+    "FLASK_APP": "api/index.py",
+    "API_DAILY_BUDGET_USD": "1.00",
+    "API_RATE_LIMIT_ENABLED": "true",
+    "API_MAX_QUOTES_PER_IP_HOUR": "50"
   },
   "github": {
     "autoAlias": false,
