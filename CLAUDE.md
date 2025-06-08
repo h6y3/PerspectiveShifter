@@ -172,36 +172,70 @@ scripts/
 4. **Temporary = temp/**: One-time scripts go in `scripts/temp/` (never committed)
 5. **Clean up regularly**: Remove outdated scripts to prevent feature drift
 
-## Documentation Organization Rules
+## Documentation Organization Standards
 
-**Directory Structure:**
+### Directory Structure and Naming Conventions
+
 ```
 docs/
-├── specs/          # Formal specifications (dated, permanent)
-├── temp/           # Ephemeral documentation (.gitignore'd, never committed)
-├── *.md            # Permanent project documentation
+├── specs/                    # Formal specifications (permanent)
+│   └── YYYY-MM-DD-feature-name.md
+├── temp/                     # Ephemeral documentation (gitignored)
+│   └── YYYY-MM-DD-description.md
+├── DEVELOPMENT_RUNBOOK.md    # Permanent reference docs
+├── testing-standards.md     # Standards and guidelines
+└── *.md                     # Other permanent documentation
+
+Root level:
+├── README.md                 # Project overview and setup
+├── DEPLOYMENT.md            # Deployment instructions
+├── CLAUDE.md                # Development guidance (this file)
+└── CLAUDE.local.md          # Local development preferences
 ```
 
-**Documentation Types:**
+### File Naming Standards
 
-**Permanent Documentation (commit to repo):**
-- **Root level**: README.md, DEPLOYMENT.md, CLAUDE.md, CLAUDE.local.md
-- **docs/**: DEVELOPMENT_RUNBOOK.md, testing-standards.md, architectural docs
-- **docs/specs/**: Formal specifications with date prefixes (e.g., 2025-06-08-feature-name.md)
+**Specifications (docs/specs/):**
+- Format: `YYYY-MM-DD-feature-name.md`
+- Example: `2025-06-08-social-media-sharing-strategy.md`
+- Use kebab-case for feature names
+- Include comprehensive implementation details
+- Permanent record of architectural decisions
 
-**Ephemeral Documentation (docs/temp/, gitignored):**
-- Point-in-time testing plans and checklists
-- Development phase documentation (clearly marked as TEMPORARY)
-- Manual testing procedures specific to current work
-- Investigation notes and debugging documentation
-- Anything useful "in the moment" but not long-term
+**Ephemeral Documentation (docs/temp/):**
+- Format: `YYYY-MM-DD-description.md`
+- Example: `2025-06-08-mobile-testing-checklist.md`
+- Include "TEMPORARY FILE" header with deletion criteria
+- Use descriptive names for development context
+- Auto-deleted after development phase
+
+**Permanent Documentation:**
+- Use SCREAMING_SNAKE_CASE for major docs (e.g., `DEVELOPMENT_RUNBOOK.md`)
+- Use kebab-case for feature-specific docs (e.g., `testing-standards.md`)
+- No date prefixes (these are living documents)
+
+### Documentation Content Guidelines
+
+**Specifications Must Include:**
+- Clear feature scope and goals
+- Implementation approach and rationale
+- API contracts and data models
+- Testing and validation criteria
+- Rollback and migration considerations
+
+**Permanent Documentation Should:**
+- Remain current and actionable
+- Include examples and usage patterns
+- Reference related specifications
+- Provide troubleshooting guidance
+- Link to external resources appropriately
 
 **Ephemeral Documentation Rules:**
-1. **Mark as temporary**: Include "TEMPORARY FILE" header with deletion criteria
-2. **Use docs/temp/**: Never commit ephemeral docs to the main repo
-3. **Clean up regularly**: Delete after the specific development phase ends
-4. **Convert to permanent if valuable**: If insights prove long-term valuable, refactor into proper documentation
-5. **Date prefixes for context**: Use format like `2025-06-08-mobile-testing-plan.md` for temporal context
+1. **Mark temporary nature**: Include clear headers indicating temporary status
+2. **Define cleanup criteria**: Specify when the document should be deleted
+3. **Use for development phases**: Testing plans, investigation notes, temporary procedures
+4. **Never commit to main repo**: Always place in gitignored `docs/temp/`
+5. **Convert valuable insights**: Promote useful findings to permanent documentation
 
 ## Root Directory Hygiene
 
@@ -217,7 +251,3 @@ docs/
 - Development artifacts
 
 **Root Cleanup Rule**: Any debug, test, or temporary .py files in root should be moved to `scripts/temp/` immediately. The root directory represents the professional face of the project.
-
-### Memories and Development Notes
-
-- Figure the file format out for docs/spec. The file name format needs to be respected for documentation
