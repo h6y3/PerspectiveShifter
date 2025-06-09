@@ -518,6 +518,13 @@ Root level:
 - Include comprehensive implementation details
 - Permanent record of architectural decisions
 
+**Work Logs (if absolutely necessary):**
+- Format: `YYYY-MM-DD-feature-name_work_log.md`
+- Example: `2025-06-08-mcp-rest-api-integration_work_log.md`
+- Use EXACT same name as parent spec with `_work_log.md` suffix
+- Should be avoided - prefer updating the main spec document
+- Only create if tracking complex implementation details separately
+
 **Ephemeral Documentation (docs/temp/):**
 - Format: `YYYY-MM-DD-description.md`
 - Example: `2025-06-08-mobile-testing-checklist.md`
@@ -552,6 +559,48 @@ Root level:
 3. **Use for development phases**: Testing plans, investigation notes, temporary procedures
 4. **Never commit to main repo**: Always place in gitignored `docs/temp/`
 5. **Convert valuable insights**: Promote useful findings to permanent documentation
+
+### Specification Update Process
+
+**CRITICAL: Complete Document Accuracy Check**
+When updating specifications during implementation:
+
+1. **Never update parts in isolation** - always review the entire document for accuracy
+2. **Check all sections** for consistency with current implementation state
+3. **Update status, progress sections, and implementation notes** comprehensively
+4. **Verify all code examples** and references are still accurate
+5. **Cross-reference related specifications** for consistency
+
+**Common Issues to Avoid:**
+- Updating progress section but leaving contradictory statements in earlier sections
+- Changing implementation approach without updating risk assessment
+- Adding new features without updating success metrics or testing strategy
+- Leaving outdated code examples or file references
+
+**Best Practice:** Read through the entire specification after any updates to ensure the document tells a coherent, accurate story of the current state.
+
+### Issue Documentation Requirements
+
+**When Features Are Complete:**
+When completing any feature implementation, ALWAYS:
+
+1. **Document discovered issues immediately** - create separate specs for problems found during implementation
+2. **Example pattern:** After completing MCP integration, production health check revealed 5 failing tests
+3. **Action required:** Create `2025-06-09-production-stability-fixes.md` to document and plan fixes
+4. **Don't leave issues undocumented** - we will lose track and re-learn the same problems later
+
+**Issue Specification Standards:**
+- Use date format: `YYYY-MM-DD-issue-description.md`
+- Include root cause analysis and proposed solutions
+- Document impact assessment and implementation timeline
+- Reference the completed feature that revealed the issues
+- Follow full specification format (not just a bug list)
+
+**Benefits:**
+- Issues become trackable features rather than forgotten problems
+- Implementation approach is documented and reviewed
+- Progress can be measured and validated
+- Prevents repeated discovery of the same issues
 
 ## Root Directory Hygiene
 
