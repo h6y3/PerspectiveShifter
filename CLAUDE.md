@@ -564,6 +564,18 @@ Root level:
 4. **Never commit to main repo**: Always place in gitignored `docs/temp/`
 5. **Convert valuable insights**: Promote useful findings to permanent documentation
 
+**Ephemeral Document Retention Criteria:**
+- **DELETE if**: Feature-specific testing completed, outdated script references, time-sensitive content
+- **RETAIN temporarily if**: Active development phase, pending feature completion
+- **PROMOTE to permanent if**: Contains reusable procedures, architectural insights, or standards
+- **Default action**: DELETE aggressively - temporary documents should have short lifecycles
+
+**Regular Cleanup Schedule:**
+- Review `docs/temp/` after each major feature completion
+- Delete documents >30 days old unless actively referenced
+- Promote valuable content to appropriate permanent locations
+- Goal: Keep `docs/temp/` minimal and current
+
 ### Specification Update Process
 
 **CRITICAL: Complete Document Accuracy Check**
