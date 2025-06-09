@@ -10,10 +10,14 @@ This document establishes testing standards and practices for PerspectiveShifter
 ### Directory Structure
 ```
 /scripts/                     # Permanent testing and utility scripts
-  ├── migrate_sharing.py      # Database migration scripts
-  ├── test_sharing_api.py     # Automated API testing
-  ├── validate_sharing_platforms.py  # Platform validation
-  └── performance_test_sharing.py    # Performance testing
+  ├── tests/                  # Organized test suite
+  │   ├── run_tests.py        # Main test runner
+  │   ├── unit/               # Unit tests for individual components
+  │   ├── integration/        # API and integration tests
+  │   ├── deployment/         # Production deployment verification
+  │   └── performance/        # Performance and load tests
+  ├── maintenance/            # Database migration and maintenance scripts
+  └── dev-tools/              # Developer productivity tools
 
 /docs/                        # Permanent documentation
   ├── testing-standards.md    # This file
@@ -163,7 +167,7 @@ except Exception as e:
 - Validate all API endpoints return expected formats
 - Test error conditions and edge cases
 
-**Example**: `scripts/test_sharing_api.py`
+**Example**: `scripts/tests/integration/test_quotes_api.py`
 
 ### 3. Performance Testing
 **Current Implementation**: Load testing with response time monitoring
@@ -174,7 +178,7 @@ except Exception as e:
 - Validate Vercel serverless function limits (60s timeout, memory usage)
 - Test concurrent access patterns
 
-**Example**: `scripts/performance_test_sharing.py`
+**Example**: `scripts/tests/performance/test_performance_sharing.py`
 
 ### 4. Platform Validation Testing
 **Current Implementation**: Cross-platform sharing validation
@@ -185,7 +189,7 @@ except Exception as e:
 - Verify image generation works correctly
 - Check mobile browser compatibility
 
-**Example**: `scripts/validate_sharing_platforms.py`
+**Example**: `scripts/tests/integration/validate_sharing_platforms.py`
 
 ### 5. Manual Testing
 **Current Implementation**: Comprehensive checklists and test plans
@@ -210,16 +214,19 @@ except Exception as e:
 uv sync  # or pip install -r requirements.txt
 
 # Run database migrations
-python scripts/migrate_sharing.py
+python scripts/maintenance/migrate_sharing.py
 
 # Start development server
 FLASK_ENV=development flask run --port 5001
 
-# Run API tests
-python scripts/test_sharing_api.py --base-url http://localhost:5001
+# Run all tests
+python scripts/tests/run_tests.py
+
+# Run specific API tests
+python scripts/tests/integration/test_quotes_api.py --base-url http://localhost:5001
 
 # Run performance tests
-python scripts/performance_test_sharing.py --url http://localhost:5001
+python scripts/tests/performance/test_performance_sharing.py --url http://localhost:5001
 ```
 
 #### 2. Staging Deployment Testing
@@ -228,19 +235,19 @@ python scripts/performance_test_sharing.py --url http://localhost:5001
 vercel --prod
 
 # Validate deployment
-python scripts/validate_sharing_platforms.py --url https://your-app.vercel.app
+python scripts/tests/integration/validate_sharing_platforms.py --url https://your-app.vercel.app
 
 # Run performance tests on staging
-python scripts/performance_test_sharing.py --url https://your-app.vercel.app
+python scripts/tests/performance/test_performance_sharing.py --url https://your-app.vercel.app
 ```
 
 #### 3. Production Deployment Testing
 ```bash
 # After production deployment
-python scripts/validate_sharing_platforms.py --url https://theperspectiveshift.vercel.app
+python scripts/tests/integration/validate_sharing_platforms.py --url https://theperspectiveshift.vercel.app
 
 # Monitor performance
-python scripts/performance_test_sharing.py --url https://theperspectiveshift.vercel.app --iterations 5
+python scripts/tests/performance/test_performance_sharing.py --url https://theperspectiveshift.vercel.app --iterations 5
 ```
 
 ### Continuous Integration (Future)
@@ -266,14 +273,17 @@ jobs:
           pip install -r requirements.txt
           pip install requests  # For testing scripts
       
+      - name: Run test suite
+        run: python scripts/tests/run_tests.py
+      
       - name: Run API tests
-        run: python scripts/test_sharing_api.py --base-url ${{ secrets.STAGING_URL }}
+        run: python scripts/tests/integration/test_quotes_api.py --base-url ${{ secrets.STAGING_URL }}
       
       - name: Run platform validation
-        run: python scripts/validate_sharing_platforms.py --url ${{ secrets.STAGING_URL }}
+        run: python scripts/tests/integration/validate_sharing_platforms.py --url ${{ secrets.STAGING_URL }}
       
       - name: Performance baseline check
-        run: python scripts/performance_test_sharing.py --url ${{ secrets.STAGING_URL }} --iterations 5
+        run: python scripts/tests/performance/test_performance_sharing.py --url ${{ secrets.STAGING_URL }} --iterations 5
 ```
 
 ## Testing Environment Management
@@ -331,9 +341,9 @@ export PROD_BASE_URL=https://theperspectiveshift.vercel.app
    - Recommendations
 
 ### Documentation Location
-- **Permanent docs**: `/docs/` directory
-- **Test plans**: `/docs/testing/` (create if needed)
-- **Temporary docs**: Root directory with `test-` prefix
+- **Permanent docs**: `/docs/runbooks/` directory
+- **Specifications**: `/docs/specs/` directory
+- **Temporary docs**: `/docs/temp/` directory (gitignored)
 
 ## Quality Gates
 

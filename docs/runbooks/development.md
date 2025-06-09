@@ -15,17 +15,17 @@ This document captures institutional knowledge, testing patterns, and operationa
 ### Essential Commands
 ```bash
 # Production health check
-uv run python scripts/production_health_check.py
+uv run python scripts/tests/deployment/test_production_health.py
 
 # Local development
 uv run python main.py
 uv run flask run --debug
 
 # Database migration (production)
-OPENAI_API_KEY="dummy" DATABASE_URL="<prod_url>" uv run python scripts/migrate_sharing.py
+OPENAI_API_KEY="dummy" DATABASE_URL="<prod_url>" uv run python scripts/maintenance/migrate_sharing.py
 
 # Run all tests
-uv run python scripts/test_sharing_api.py
+uv run python scripts/tests/run_tests.py
 uv run python test_real_instagram_downloads.py
 uv run python test_tracking_fix.py
 ```
@@ -84,15 +84,15 @@ curl -s -I "$(curl -s 'https://theperspectiveshift.vercel.app/share/51_0' | grep
 ### Automated Testing Scripts
 
 **Comprehensive Tests:**
-- `scripts/production_health_check.py` - Full production health check
-- `test_real_instagram_downloads.py` - Instagram consistency verification
-- `test_tracking_fix.py` - Share tracking validation
-- `test_refactor_verification.py` - DRY refactor verification
+- `scripts/tests/deployment/test_production_health.py` - Full production health check  
+- `scripts/tests/run_tests.py` - Run complete test suite
+- `scripts/tests/integration/test_quotes_api.py` - API endpoint testing
+- `scripts/tests/integration/test_mcp_integration.py` - MCP server testing
 
 **Specialized Tests:**
-- `scripts/test_sharing_api.py` - API endpoint testing
-- `scripts/validate_sharing_platforms.py` - Platform-specific validation
-- `scripts/performance_test_sharing.py` - Load testing
+- `scripts/tests/integration/validate_sharing_platforms.py` - Platform-specific validation
+- `scripts/tests/performance/test_performance_sharing.py` - Load testing
+- `scripts/tests/unit/test_wisdom_service.py` - Unit tests for core services
 
 ## Debugging Procedures
 
@@ -168,7 +168,7 @@ git push
 vercel --prod
 
 # 3. Run post-deployment health check
-uv run python scripts/production_health_check.py
+uv run python scripts/tests/deployment/test_production_health.py
 
 # 4. Verify key functionality manually
 curl -s "https://theperspectiveshift.vercel.app/health"
@@ -186,7 +186,7 @@ curl -s "https://theperspectiveshift.vercel.app/health"
 **Symptom:** `ImportError: cannot import name 'ShareStats'`
 **Solution:** Database migration needed
 ```bash
-DATABASE_URL="<prod_url>" uv run python scripts/migrate_sharing.py
+DATABASE_URL="<prod_url>" uv run python scripts/maintenance/migrate_sharing.py
 ```
 
 ### Image Inconsistency
@@ -224,7 +224,7 @@ grep -r "moment\|undefined_var" templates/
 ### Health Check Automation
 ```bash
 # Run health check every 15 minutes
-*/15 * * * * cd /path/to/project && uv run python scripts/production_health_check.py >> /var/log/perspectiveshift-health.log 2>&1
+*/15 * * * * cd /path/to/project && uv run python scripts/tests/deployment/test_production_health.py >> /var/log/perspectiveshift-health.log 2>&1
 ```
 
 ### Alert Conditions

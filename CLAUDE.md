@@ -494,17 +494,19 @@ python3 scripts/tests/deployment/production_health_check.py
 
 ```
 docs/
-├── specs/                    # Formal specifications (permanent)
+├── specs/                           # Feature specifications (permanent)
 │   └── YYYY-MM-DD-feature-name.md
-├── temp/                     # Ephemeral documentation (gitignored)
+├── runbooks/                        # Operational procedures (permanent)
+│   ├── development.md              # Development procedures and commands
+│   ├── deployment.md               # Vercel deployment procedures
+│   └── testing.md                  # Testing standards and procedures
+├── temp/                           # Ephemeral documentation (gitignored)
 │   └── YYYY-MM-DD-description.md
-├── DEVELOPMENT_RUNBOOK.md    # Permanent reference docs
-├── testing-standards.md     # Standards and guidelines
-└── *.md                     # Other permanent documentation
+└── archive/                        # Deprecated docs (moved, not deleted)
+    └── deprecated-YYYY-MM-DD-original-name.md
 
 Root level:
 ├── README.md                 # Project overview and setup
-├── DEPLOYMENT.md            # Deployment instructions
 ├── CLAUDE.md                # Development guidance (this file)
 └── CLAUDE.local.md          # Local development preferences
 ```
@@ -517,6 +519,13 @@ Root level:
 - Use kebab-case for feature names
 - Include comprehensive implementation details
 - Permanent record of architectural decisions
+
+**Runbooks (docs/runbooks/):**
+- Format: `category.md`
+- Examples: `development.md`, `deployment.md`, `testing.md`
+- Use kebab-case for descriptive names
+- Operational procedures and standards
+- Living documents that stay current with project evolution
 
 **Work Logs (if absolutely necessary):**
 - Format: `YYYY-MM-DD-feature-name_work_log.md`
@@ -531,11 +540,6 @@ Root level:
 - Include "TEMPORARY FILE" header with deletion criteria
 - Use descriptive names for development context
 - Auto-deleted after development phase
-
-**Permanent Documentation:**
-- Use SCREAMING_SNAKE_CASE for major docs (e.g., `DEVELOPMENT_RUNBOOK.md`)
-- Use kebab-case for feature-specific docs (e.g., `testing-standards.md`)
-- No date prefixes (these are living documents)
 
 ### Documentation Content Guidelines
 
