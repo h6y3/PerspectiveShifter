@@ -136,7 +136,18 @@ FLASK_PORT=5001
 }
 ```
 
-**Deployment Commands:**
+**Deployment Methods:**
+
+**Option 1: Git-based Deployment (Automatic)**
+```bash
+# Commit changes and push to main branch
+git add .
+git commit -m "your commit message"
+git push origin main
+# Vercel automatically deploys from main branch
+```
+
+**Option 2: Direct CLI Deployment (Manual)**
 ```bash
 # Preview deployment (feature branch)
 vercel --prod=false --yes

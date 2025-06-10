@@ -3,7 +3,7 @@
   "functions": {
     "api/*.py": {
       "runtime": "@vercel/python@4.3.0",
-      "maxDuration": 30
+      "maxDuration": 60
     },
     "api/v1/*.py": {
       "runtime": "@vercel/python@4.3.0",

@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import time
 from openai import OpenAI
 
 # Initialize OpenAI client
@@ -12,6 +13,7 @@ def get_wisdom_quotes(user_input):
     Get curated wisdom quotes from OpenAI GPT-4-mini based on user's current state
     """
     
+    start_time = time.time()
     logging.info(f"Starting OpenAI request for input: '{user_input}'")
     
     # JSON-based prompt for reliable parsing
@@ -51,6 +53,7 @@ Response format:
     try:
         # the newest OpenAI model is "gpt-4o-mini" which was released after "gpt-4-mini".
         # do not change this unless explicitly requested by the user
+        api_start_time = time.time()
         logging.info("Making OpenAI API call...")
         response = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -60,11 +63,13 @@ Response format:
             ],
             max_tokens=1000,
             temperature=0.7,
-            response_format={"type": "json_object"}
+            response_format={"type": "json_object"},
+            timeout=50.0  # 50 second timeout with 60s function limit
         )
         
+        api_duration = time.time() - api_start_time
         response_text = response.choices[0].message.content
-        logging.info(f"OpenAI API call successful! Response length: {len(response_text)} chars")
+        logging.info(f"OpenAI API call successful! Duration: {api_duration:.2f}s, Response length: {len(response_text)} chars")
         logging.info(f"Full OpenAI response: {response_text}")
         
         # Parse JSON response
@@ -75,10 +80,13 @@ Response format:
         for i, quote in enumerate(quotes):
             logging.info(f"Quote {i+1}: '{quote.get('quote', 'NO QUOTE')}' by {quote.get('attribution', 'NO ATTRIBUTION')}")
         
+        total_duration = time.time() - start_time
+        logging.info(f"Total get_wisdom_quotes duration: {total_duration:.2f}s (API: {api_duration:.2f}s)")
         return quotes
         
     except Exception as e:
-        logging.error(f"Error calling OpenAI API: {str(e)}")
+        total_duration = time.time() - start_time
+        logging.error(f"Error calling OpenAI API after {total_duration:.2f}s: {str(e)}")
         logging.error(f"Exception type: {type(e)}")
         # Return fallback quotes if API fails
         logging.warning("Returning fallback quotes due to API error")

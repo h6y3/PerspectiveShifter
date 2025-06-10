@@ -1,5 +1,6 @@
 import json
 import random
+import time
 from datetime import datetime
 from flask import render_template, request, redirect, url_for, flash, send_file, Response
 from api.index import app, db
@@ -62,6 +63,7 @@ def index():
 @app.route('/shift', methods=['POST'])
 def shift_perspective():
     """Process user input and get wisdom quotes - completely stateless"""
+    start_time = time.time()
     user_input = request.form.get('user_input', '').strip()
     if not user_input:
         flash('Please enter how you\'re feeling or what\'s on your mind.', 'error')
@@ -116,6 +118,9 @@ def shift_perspective():
             total_shares = 0
             platform_stats = {}
         
+        total_duration = time.time() - start_time
+        logging.info(f"Total /shift route duration: {total_duration:.2f}s")
+        
         return render_template('index.html',
                              prompt=random.choice(PROMPTS),
                              user_input=user_input,
@@ -125,7 +130,8 @@ def shift_perspective():
                              platform_stats=platform_stats,
                              show_results=True)
     except Exception as e:
-        logging.error(f"Error processing shift: {str(e)}")
+        total_duration = time.time() - start_time
+        logging.error(f"Error processing shift after {total_duration:.2f}s: {str(e)}")
         flash('An error occurred while processing your request.', 'error')
         return redirect(url_for('index'))
 
