@@ -48,6 +48,21 @@ curl https://theperspectiveshift.vercel.app/debug_files
 
 # Troubleshoot deployment failures
 vercel logs https://theperspectiveshift.vercel.app
+
+# Performance testing and monitoring
+python3 -c "
+import urllib.request
+import urllib.parse
+import time
+
+# Test main shift endpoint timing
+start = time.time()
+data = urllib.parse.urlencode({'user_input': 'test performance'}).encode()
+req = urllib.request.Request('https://theperspectiveshift.vercel.app/shift', data=data, method='POST')
+req.add_header('Content-Type', 'application/x-www-form-urlencoded')
+response = urllib.request.urlopen(req, timeout=65)
+print(f'Client duration: {time.time()-start:.2f}s, Status: {response.status}')
+"
 ```
 
 **Network Access Notes:**
@@ -311,6 +326,72 @@ python3 -c "import urllib.request; print(urllib.request.urlopen('https://thepers
 - **Deployment Verification:** ALWAYS run health check after deployment
 - **Vercel Function Pattern:** Use BaseHTTPRequestHandler, not Flask, for API endpoints
 
+## Performance & Timeout Management (2025-06-10)
+
+**Critical Timeout Configuration:**
+- **Vercel Function Timeout**: 60 seconds for main WSGI app (`api/*.py`)
+- **OpenAI API Timeout**: 50 seconds (within function limit)
+- **API v1 Endpoints**: 30 seconds (designed for fast responses)
+- **MCP Endpoints**: 60 seconds (complex operations)
+
+**Production Performance Patterns:**
+- OpenAI API calls typically take 5-35 seconds
+- Calls >30 seconds indicate API load issues
+- Fallback quotes activate on timeout/error
+- Database operations add 0.1-0.5 seconds overhead
+
+**Performance Monitoring Commands:**
+```bash
+# Monitor production logs for timing data
+vercel logs https://theperspectiveshift.vercel.app
+
+# Test performance with timing
+python3 -c "
+import urllib.request, urllib.parse, time
+start = time.time()
+data = urllib.parse.urlencode({'user_input': 'performance test'}).encode()
+req = urllib.request.Request('https://theperspectiveshift.vercel.app/shift', data=data)
+req.add_header('Content-Type', 'application/x-www-form-urlencoded')
+response = urllib.request.urlopen(req, timeout=65)
+print(f'Total: {time.time()-start:.2f}s')
+"
+
+# Look for timing logs in output:
+# 'OpenAI API call successful! Duration: X.XXs'
+# 'Total get_wisdom_quotes duration: X.XXs'
+# 'Total /shift route duration: X.XXs'
+```
+
+**Timeout Troubleshooting:**
+1. Check logs for "Request timed out" or "APITimeoutError"
+2. Verify OpenAI timeout setting in `openai_service.py:67`
+3. Confirm Vercel function timeout in `vercel.json:6`
+4. Test with performance monitoring commands above
+5. Consider reducing prompt complexity if timeouts persist
+
+## Vercel Constraints & Limits (2025-06-10)
+
+**File Limits (Hobby Plan):**
+- **Maximum**: 12 files in `/api` directory
+- **Current Count**: 5 files (safe)
+  - `api/index.py` (main WSGI app)
+  - `api/v1/health.py`
+  - `api/v1/images.py` 
+  - `api/v1/quotes.py`
+  - `api/mcp/server.py`
+
+**Adding New API Endpoints:**
+- **AVOID**: Creating new .py files in `/api` when possible
+- **PREFER**: Adding routes to existing files
+- **STRATEGY**: Consolidate related functionality
+- **MONITOR**: Track file count before adding features
+
+**Performance Constraints:**
+- **Function Duration**: 60s max for main app, 30s for API v1
+- **Memory**: Limited in serverless environment
+- **Cold Starts**: Minimize import overhead
+- **Concurrent Requests**: Single-threaded execution per function
+
 ## Deployment Troubleshooting Guide (2025-06-08)
 
 **Common Issues and Solutions:**
@@ -353,9 +434,17 @@ self.send_header('Access-Control-Allow-Headers', 'Content-Type')
 **Debugging Workflow:**
 1. Deploy: `vercel --prod --yes`
 2. Verify: `python3 scripts/tests/deployment/production_health_check.py`
-3. If failures: `vercel logs <deployment-url>`
-4. Fix issues and redeploy
-5. Re-verify until health check passes
+3. If failures: `vercel logs https://theperspectiveshift.vercel.app`
+4. Check performance: Use timing commands from Performance section above
+5. Fix issues and redeploy
+6. Re-verify until health check passes
+
+**Performance-Related Deployment Issues:**
+- **Symptom**: WSGI timeouts on `/shift` endpoint
+- **Root Cause**: OpenAI API calls taking >30 seconds
+- **Solution**: Increase Vercel function timeout in `vercel.json`
+- **Verification**: Check logs for "Duration: X.XXs" timing data
+- **Prevention**: Monitor OpenAI API performance trends
 
 ## MCP and REST API Architecture (2025-06-08)
 
